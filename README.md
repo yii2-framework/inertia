@@ -11,24 +11,34 @@
 <!-- markdownlint-enable MD041 -->
 
 <p align="center">
+    <a href="https://github.com/yii2-framework/inertia/actions/workflows/build.yml" target="_blank">
+        <img src="https://img.shields.io/github/actions/workflow/status/yii2-framework/inertia/build.yml?style=for-the-badge&logo=github&label=PHPUnit" alt="PHPUnit">
+    </a>
+    <a href="https://dashboard.stryker-mutator.io/reports/github.com/yii2-framework/inertia/main" target="_blank">
+        <img src="https://img.shields.io/endpoint?style=for-the-badge&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyii2-framework%2Finertia%2Fmain" alt="Mutation Testing">
+    </a>
+    <a href="https://github.com/yii2-framework/inertia/actions/workflows/static.yml" target="_blank">
+        <img src="https://img.shields.io/github/actions/workflow/status/yii2-framework/inertia/static.yml?style=for-the-badge&logo=github&label=PHPStan" alt="PHPStan">
+    </a>
+</p>
+
+<p align="center">
     <strong>Inertia.js server-side integration layer for <a href="https://github.com/yii2-framework/core">yii2-framework/core</a></strong><br>
     <em>Server-driven pages, shared props, redirects, and asset version handling without jQuery</em>
 </p>
+
+## Features
+
+<picture>
+    <source media="(min-width: 768px)" srcset="./docs/svgs/features.svg">
+    <img src="./docs/svgs/features-mobile.svg" alt="Feature Overview" style="width: 100%;">
+</picture>
 
 ## Overview
 
 `yii2-framework/inertia` is the server-side base package for building modern Inertia-driven pages on top of Yii2.
 It does not ship a client adapter. Instead, it defines the server contract that future packages such as
 `yii2-framework/inertia-vue`, `yii2-framework/inertia-react`, and `yii2-framework/inertia-svelte` can reuse.
-
-This package focuses on:
-
-- Inertia page rendering for initial HTML visits and JSON visits.
-- Shared props and lazy prop resolution with PHP closures.
-- Flash message and validation error transport.
-- Asset version mismatch handling.
-- Redirect normalization for Inertia XHR requests.
-- Route-by-route coexistence with legacy Yii2 pages.
 
 ## Installation
 
@@ -132,10 +142,12 @@ client adapter packages built on top of the server contract defined here.
 
 ## Documentation
 
-- [Installation Guide](docs/installation.md)
-- [Configuration Reference](docs/configuration.md)
-- [Usage Examples](docs/examples.md)
-- [Development Notes](docs/development.md)
+For detailed configuration options and advanced usage.
+
+- 📚 [Installation Guide](docs/installation.md)
+- ⚙️ [Configuration Reference](docs/configuration.md)
+- 💡 [Usage Examples](docs/examples.md)
+- 🧪 [Testing Guide](docs/testing.md)
 
 ## Package information
 

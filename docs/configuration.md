@@ -1,13 +1,20 @@
-# Configuration Reference
+# Configuration reference
 
-## Application component
+## Overview
 
-The package exposes a configurable `inertia` application component of type `yii\inertia\Manager`.
+`yii2-framework/inertia` provides a server-side Inertia response manager registered as the `inertia` application
+component. The bootstrap class registers it automatically when missing.
+
+## Basic configuration
+
+Enable the package through the application bootstrap and configure the component:
 
 ```php
+// config/web.php
 use yii\inertia\Manager;
 
 return [
+    'bootstrap' => [\yii\inertia\Bootstrap::class],
     'components' => [
         'inertia' => [
             'class' => Manager::class,
@@ -51,3 +58,9 @@ Associative array of shared props. Dot notation is supported for nested props.
 ### `errorFlashKey`
 
 Session flash key that will be exposed as `props.errors`. Defaults to `errors`.
+
+## Next steps
+
+- 📚 [Installation Guide](installation.md)
+- 💡 [Usage Examples](examples.md)
+- 🧪 [Testing Guide](testing.md)

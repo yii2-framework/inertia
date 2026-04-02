@@ -1,4 +1,4 @@
-# Usage Examples
+# Usage examples
 
 ## Shared props
 
@@ -43,3 +43,9 @@ return $this->redirect(['view', 'id' => $model->id]);
 ```php
 return Inertia::location('https://example.com/account/login');
 ```
+
+## Next steps
+
+- 📚 [Installation Guide](installation.md)
+- ⚙️ [Configuration Reference](configuration.md)
+- 🧪 [Testing Guide](testing.md)

@@ -6,6 +6,5 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## 0.1.0 Under development
 
-### Added
-
 - feat: initial `yii2-framework/inertia` package structure.
+- docs: standardize documentation style, feature SVGs, cross-navigation, and `testing.md` to match `yii2-framework/jquery` conventions.
