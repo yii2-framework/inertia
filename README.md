@@ -23,7 +23,7 @@
 </p>
 
 <p align="center">
-    <strong>Inertia.js server-side integration layer for <a href="https://github.com/yii2-framework/yii2">yii2</a></strong><br>
+    <strong>Inertia.js server-side integration layer for <a href="https://github.com/yii2-framework/yii2">Yii2</a></strong><br>
     <em>Server-driven pages, shared props, redirects, and asset version handling without jQuery</em>
 </p>
 
@@ -43,7 +43,7 @@ It does not ship a client adapter. Instead, it defines the server contract that 
 ## Installation
 
 ```bash
-composer require yii2-framework/inertia
+composer require yii2-framework/inertia:^0.1
 ```
 
 Register the bootstrap class in your application configuration:

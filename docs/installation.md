@@ -5,12 +5,32 @@
 - [PHP](https://www.php.net/downloads) `8.2` or higher.
 - [Composer](https://getcomposer.org/download/) for dependency management.
 
-## Install the package
+## Installation
 
-Add the package with Composer:
+### Method 1: Using [Composer](https://getcomposer.org/download/) (recommended)
+
+Install the extension.
 
 ```bash
 composer require yii2-framework/inertia:^0.1
+```
+
+### Method 2: Manual installation
+
+Add to your `composer.json`.
+
+```json
+{
+    "require": {
+        "yii2-framework/inertia": "^0.1"
+    }
+}
+```
+
+Then run.
+
+```bash
+composer update
 ```
 
 ## Register the bootstrap integration
