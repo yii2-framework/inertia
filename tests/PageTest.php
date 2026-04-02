@@ -111,6 +111,7 @@ final class PageTest extends TestCase
             "Should be 'true'.",
         );
     }
+
     /**
      * @param array{
      *   component: string,
