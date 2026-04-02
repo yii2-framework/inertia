@@ -18,13 +18,8 @@
             ignoreSourceCodeByRegex: [".*return \\$closure\\(\\);.*"],
         },
         // Negating `$root` in `resolveNode()` is equivalent because root always has resolved children.
-        // Negating the first sub-expression of bidirectional `pathStartsWith` in `shouldKeepEmptyNode()`
-        // is equivalent because the method is only reached for empty resolved arrays. Genuinely equivalent.
         LogicalOrSingleSubExprNegation: {
-            ignoreSourceCodeByRegex: [
-                ".*\\$root \\|\\| \\$resolved.*",
-                ".*\\$this->pathStartsWith\\(\\$path, \\$candidate\\) \\|\\| \\$this->pathStartsWith\\(\\$candidate, \\$path\\).*",
-            ],
+            ignoreSourceCodeByRegex: [".*\\$root \\|\\| \\$resolved.*"],
         },
         // `has('session', true)` checks instance existence. Changing `true` to `false` checks definition
         // existence instead, which always returns `true` in Yii2 web apps (session is a core component).

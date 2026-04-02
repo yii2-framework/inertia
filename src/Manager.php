@@ -536,7 +536,7 @@ final class Manager extends Component
                 }
             }
 
-            if ($root || $resolved !== [] || $this->shouldKeepEmptyNode($path, $only)) {
+            if ($root || $resolved !== [] || $only !== []) {
                 return [true, $resolved];
             }
 
@@ -623,30 +623,6 @@ final class Manager extends Component
 
         return $request->getHeaders()->has('X-Inertia-Partial-Data')
             || $request->getHeaders()->has('X-Inertia-Partial-Except');
-    }
-
-    /**
-     * Returns `true` if an array that became empty after filtering should be preserved in the output.
-     *
-     * The node is kept only if it matches a requested path in `$only`. When `$only` is empty (except-only reload),
-     * empty parents are dropped to avoid overwriting cached client data.
-     *
-     * @param string $path Dot-notation prop path.
-     * @param array $only Included paths from the partial-data header.
-     *
-     * @return bool `true` if the empty node should be kept; otherwise, `false`.
-     *
-     * @phpstan-param list<string> $only
-     */
-    private function shouldKeepEmptyNode(string $path, array $only): bool
-    {
-        foreach ($only as $candidate) {
-            if ($this->pathStartsWith($path, $candidate) || $this->pathStartsWith($candidate, $path)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**

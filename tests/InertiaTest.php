@@ -148,6 +148,11 @@ final class InertiaTest extends TestCase
             $response->statusCode,
             "Standard request should return a '302' redirect.",
         );
+        self::assertSame(
+            'https://example.test/login',
+            $response->getHeaders()->get('Location'),
+            'Standard redirect should point to the expected absolute URL.',
+        );
     }
 
     public function testManagerThrowsExceptionForInvalidComponent(): void
