@@ -77,12 +77,14 @@ final class ManagerTest extends TestCase
             'Inertia component should be a Manager instance.',
         );
 
-        $manager->version = static fn(): string => 'resolved-version';
+        $this->setAbsoluteUrl('/versioned');
+
+        $manager->version = static fn(Request $request): string => $request->getUrl();
 
         self::assertSame(
-            'resolved-version',
+            '/versioned',
             $manager->getVersion(),
-            'Should resolve Closure and return its value.',
+            'Should pass the current request to request-aware version callbacks.',
         );
     }
 
@@ -437,13 +439,13 @@ final class ManagerTest extends TestCase
         );
     }
 
-    public function testPartialReloadExcludedPropDoesNotAppearAsNull(): void
+    public function testPartialReloadExceptOnlyPreservesEmptyErrors(): void
     {
         $this->prepareInertiaRequest();
         $this->setAbsoluteUrl('/dashboard');
 
         Yii::$app->getRequest()->getHeaders()->set('X-Inertia-Partial-Component', 'Dashboard');
-        Yii::$app->getRequest()->getHeaders()->set('X-Inertia-Partial-Data', 'stats');
+        Yii::$app->getRequest()->getHeaders()->set('X-Inertia-Partial-Except', 'stats');
 
         $response = Inertia::render(
             'Dashboard',
@@ -451,10 +453,6 @@ final class ManagerTest extends TestCase
                 'stats' => [
                     'visits' => 10,
                 ],
-                'users' => [
-                    'Jane',
-                ],
-                'metadata' => null,
             ],
         );
 
@@ -462,15 +460,64 @@ final class ManagerTest extends TestCase
 
         $props = $page['props'];
 
-        self::assertArrayNotHasKey(
-            'users',
+        self::assertArrayHasKey(
+            'errors',
             $props,
-            "Excluded prop should not appear at all (not even as 'null').",
+            'Empty errors should be preserved in except-only partial reload.',
         );
-        self::assertArrayNotHasKey(
-            'metadata',
-            $props,
-            'Excluded null prop should not appear in filtered output.',
+        self::assertEmpty(
+            $props['errors'],
+            'Errors should be an empty array when no flash errors exist.',
+        );
+    }
+
+    public function testPartialReloadDoesNotLeakExcludedPropsAsNull(): void
+    {
+        $this->prepareInertiaRequest();
+        $this->setAbsoluteUrl('/dashboard');
+
+        Yii::$app->getRequest()->getHeaders()->set('X-Inertia-Partial-Component', 'Dashboard');
+        Yii::$app->getRequest()->getHeaders()->set('X-Inertia-Partial-Data', 'title');
+
+        $response = Inertia::render(
+            'Dashboard',
+            [
+                'title' => 'Hello',
+                'secret' => static fn(): string => 'should-never-appear',
+            ],
+        );
+
+        $page = $this->extractPage($response);
+
+        self::assertSame(
+            ['title' => 'Hello', 'errors' => []],
+            $page['props'],
+            'Excluded props must not leak as null or resolved values.',
+        );
+    }
+
+    public function testPartialReloadExceptDoesNotLeakExcludedPropAsNull(): void
+    {
+        $this->prepareInertiaRequest();
+        $this->setAbsoluteUrl('/dashboard');
+
+        Yii::$app->getRequest()->getHeaders()->set('X-Inertia-Partial-Component', 'Dashboard');
+        Yii::$app->getRequest()->getHeaders()->set('X-Inertia-Partial-Except', 'secret');
+
+        $response = Inertia::render(
+            'Dashboard',
+            [
+                'title' => 'Hello',
+                'secret' => static fn(): string => 'should-never-appear',
+            ],
+        );
+
+        $page = $this->extractPage($response);
+
+        self::assertSame(
+            ['title' => 'Hello', 'errors' => []],
+            $page['props'],
+            'Except-excluded props must not leak as null or resolved values.',
         );
     }
 
@@ -872,6 +919,7 @@ final class ManagerTest extends TestCase
         $response = Inertia::render(
             'Dashboard',
             [
+                'filters' => [],
                 'stats' => [
                     'visits' => 10,
                 ],
@@ -885,6 +933,16 @@ final class ManagerTest extends TestCase
 
         $props = $page['props'];
 
+        self::assertArrayHasKey(
+            'filters',
+            $props,
+            'Legitimately empty prop "filters" should be preserved in except-only reload.',
+        );
+        self::assertSame(
+            [],
+            $props['filters'],
+            'Empty filters prop should remain an empty array.',
+        );
         self::assertArrayHasKey(
             'stats',
             $props,
@@ -921,6 +979,7 @@ final class ManagerTest extends TestCase
         );
 
         $page = $this->extractPage($response);
+
         $props = $page['props'];
 
         self::assertArrayHasKey(

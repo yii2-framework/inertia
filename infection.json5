@@ -14,19 +14,8 @@
         // Removing `return` inside the zero-param branch of `invokeClosure()` causes the closure to be
         // re-invoked with a `Request` argument. PHP silently ignores extra arguments for closures,
         // producing identical results. Genuinely equivalent.
-        //
-        // The `[false, null]` return in `resolveNode()` is unreachable in isolation because the parent
-        // caller filters by the boolean flag. Genuinely equivalent.
         ReturnRemoval: {
-            ignoreSourceCodeByRegex: [
-                ".*return \\$closure\\(\\);.*",
-                ".*return \\[false, null\\];.*",
-            ],
-        },
-        // Changing `false` to `true` in `[false, null]` has no observable effect because the parent
-        // resolveNode caller discards the value when include=false. Genuinely equivalent.
-        FalseValue: {
-            ignoreSourceCodeByRegex: [".*return \\[false, null\\];.*"],
+            ignoreSourceCodeByRegex: [".*return \\$closure\\(\\);.*"],
         },
         // Negating `$root` in `resolveNode()` is equivalent because root always has resolved children.
         // Negating the first sub-expression of bidirectional `pathStartsWith` in `shouldKeepEmptyNode()`

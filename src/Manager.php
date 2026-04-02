@@ -524,7 +524,7 @@ final class Manager extends Component
             $value = $this->invokeClosure($value);
         }
 
-        if (is_array($value)) {
+        if (is_array($value) && $value !== []) {
             $resolved = [];
 
             foreach ($value as $key => $child) {
@@ -626,11 +626,10 @@ final class Manager extends Component
     }
 
     /**
-     * Returns `true` if an empty resolved array at `$path` should be preserved in the output.
+     * Returns `true` if an array that became empty after filtering should be preserved in the output.
      *
-     * Empty nodes under `errors` are always preserved. When `$only` is empty (except-only reload), empty parents are
-     * dropped to avoid overwriting cached client data. When `$only` is explicit, the node is kept only if it matches
-     * the requested paths.
+     * The node is kept only if it matches a requested path in `$only`. When `$only` is empty (except-only reload),
+     * empty parents are dropped to avoid overwriting cached client data.
      *
      * @param string $path Dot-notation prop path.
      * @param array $only Included paths from the partial-data header.
@@ -641,10 +640,6 @@ final class Manager extends Component
      */
     private function shouldKeepEmptyNode(string $path, array $only): bool
     {
-        if ($path === 'errors' || str_starts_with($path, 'errors.')) {
-            return true;
-        }
-
         foreach ($only as $candidate) {
             if ($this->pathStartsWith($path, $candidate) || $this->pathStartsWith($candidate, $path)) {
                 return true;
