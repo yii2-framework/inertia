@@ -23,7 +23,7 @@
 </p>
 
 <p align="center">
-    <strong>Inertia.js server-side integration layer for <a href="https://github.com/yii2-framework/core">yii2-framework/core</a></strong><br>
+    <strong>Inertia.js server-side integration layer for <a href="https://github.com/yii2-framework/yii2">yii2</a></strong><br>
     <em>Server-driven pages, shared props, redirects, and asset version handling without jQuery</em>
 </p>
 
