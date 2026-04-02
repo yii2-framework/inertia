@@ -195,7 +195,7 @@ final class InertiaTest extends TestCase
         self::assertSame(
             'en',
             Inertia::getShared('locale'),
-            "With array should store locale.",
+            'With array should store locale.',
         );
         self::assertTrue(
             Inertia::getShared('debug'),
