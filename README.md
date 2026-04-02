@@ -58,7 +58,7 @@ final class SiteController extends Controller
     public function actionIndex(): Response
     {
         return Inertia::render(
-            'Dashboard', 
+            'Dashboard',
             ['stats' => ['visits' => 42]],
         );
     }

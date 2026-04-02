@@ -46,7 +46,14 @@ final class Bootstrap implements BootstrapInterface
                     return;
                 }
 
-                $response->getHeaders()->setDefault('Vary', 'X-Inertia');
+                $vary = $response->getHeaders()->get('Vary');
+
+                if ($vary === null) {
+                    $response->getHeaders()->set('Vary', 'X-Inertia');
+                } elseif (stripos($vary, 'X-Inertia') === false) {
+                    $response->getHeaders()->set('Vary', $vary . ', X-Inertia');
+                }
+
                 $redirect = $response->getHeaders()->get('X-Redirect');
 
                 if ($redirect !== null) {

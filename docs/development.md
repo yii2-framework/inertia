@@ -25,3 +25,14 @@ The intended package family is:
 
 The implementation follows the current Inertia v3 direction for initial page transport by embedding the initial page
 JSON in a `<script type="application/json">` element inside the root application container.
+
+> **Note:** Current `@inertiajs/*` client packages default to reading the `data-page` attribute. To use the
+> script-element transport you must enable the flag on the client side:
+>
+> ```js
+> import { defaults } from '@inertiajs/vue3' // or react, svelte
+>
+> defaults.future.useScriptElementForInitialPage = true
+> ```
+>
+> Without this flag the page will not hydrate.

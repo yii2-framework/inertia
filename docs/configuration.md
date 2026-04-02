@@ -13,9 +13,15 @@ return [
             'class' => Manager::class,
             'id' => 'app',
             'rootView' => '@app/views/layouts/inertia.php',
-            'version' => static fn(): int => filemtime(dirname(__DIR__) . '/public/build/manifest.json'),
+            'version' => static function (): string {
+                $path = dirname(__DIR__) . '/public/build/manifest.json';
+
+                return is_file($path) ? (string) filemtime($path) : '';
+            },
             'shared' => [
-                'auth.user' => static fn() => Yii::$app->user->identity,
+                'auth.user' => static fn(): ?array => Yii::$app->user->isGuest
+                    ? null
+                    : ['id' => Yii::$app->user->getId()],
                 'app.name' => static fn(): string => Yii::$app->name,
             ],
         ],
@@ -27,7 +33,7 @@ return [
 
 ### `id`
 
-DOM id used by the default root view. Defaults to `app`.
+DOM ID used by the default root view. Defaults to `app`.
 
 ### `rootView`
 

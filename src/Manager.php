@@ -33,7 +33,11 @@ use function is_string;
  *         'inertia' => [
  *             'class' => \yii\inertia\Manager::class,
  *             'rootView' => '@app/views/app.php',
- *             'version' => static fn(): string => (string) filemtime(\Yii::getAlias('@webroot/js/app.js')),
+ *             'version' => static function (): string {
+ *                 $path = \Yii::getAlias('@webroot/js/app.js');
+ *
+ *                 return is_file($path) ? (string) filemtime($path) : '';
+ *             },
  *         ],
  *     ],
  * ];
@@ -180,7 +184,8 @@ final class Manager extends Component
 
             $response->setStatusCode(409);
             $response->getHeaders()->set('X-Inertia-Location', Url::to($url, true));
-            $response->getHeaders()->setDefault('Vary', 'X-Inertia');
+
+            $this->ensureVaryHeader($response);
 
             return $response;
         }
@@ -217,6 +222,7 @@ final class Manager extends Component
     {
         $request = Yii::$app->getRequest();
         $response = Yii::$app->getResponse();
+
         $version = $this->getVersion();
 
         if ($this->shouldReturnVersionConflict($request, $version)) {
@@ -229,16 +235,18 @@ final class Manager extends Component
 
             $response->setStatusCode(409);
             $response->getHeaders()->set('X-Inertia-Location', $request->getAbsoluteUrl());
-            $response->getHeaders()->setDefault('Vary', 'X-Inertia');
+
+            $this->ensureVaryHeader($response);
 
             return $response;
         }
 
         [$errors, $flash] = $this->consumeFlashes();
         $resolvedProps = $this->resolveProps($component, $props, $errors);
+
         $page = new Page($component, $resolvedProps, $request->getUrl(), $version, $flash);
 
-        $response->getHeaders()->setDefault('Vary', 'X-Inertia');
+        $this->ensureVaryHeader($response);
 
         if ($this->isInertiaRequest($request)) {
             $response->format = Response::FORMAT_JSON;
@@ -339,6 +347,22 @@ final class Manager extends Component
         }
 
         return [$errors, $flashes];
+    }
+
+    /**
+     * Appends `X-Inertia` to the `Vary` response header if not already present.
+     *
+     * @param Response $response Response whose headers will be modified.
+     */
+    private function ensureVaryHeader(Response $response): void
+    {
+        $vary = $response->getHeaders()->get('Vary');
+
+        if ($vary === null) {
+            $response->getHeaders()->set('Vary', 'X-Inertia');
+        } elseif (stripos($vary, 'X-Inertia') === false) {
+            $response->getHeaders()->set('Vary', $vary . ', X-Inertia');
+        }
     }
 
     /**
@@ -531,6 +555,7 @@ final class Manager extends Component
     private function resolveProps(string $component, array $props, array $errors): array
     {
         $resolved = ArrayHelper::merge($this->shared, $props);
+
         $resolved['errors'] = $errors;
 
         if (!$this->shouldApplyPartialReload($component)) {
@@ -539,9 +564,9 @@ final class Manager extends Component
         }
 
         $request = Yii::$app->getRequest();
+
         $only = $this->parseHeaderList($request->getHeaders()->get('X-Inertia-Partial-Data'));
         $except = $this->parseHeaderList($request->getHeaders()->get('X-Inertia-Partial-Except'));
-
         [, $filtered] = $this->resolveNode($resolved, '', $only, $except, true);
 
         /** @phpstan-var array<string, mixed> */

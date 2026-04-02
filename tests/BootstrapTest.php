@@ -76,7 +76,7 @@ final class BootstrapTest extends TestCase
     public function testBootstrapRegistersAliasAndComponent(): void
     {
         self::assertSame(
-            dirname(__DIR__) . '/src',
+            dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src',
             Yii::getAlias('@inertia'),
             '@inertia alias should resolve to the package src/ directory.',
         );

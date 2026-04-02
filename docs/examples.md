@@ -6,7 +6,9 @@
 use yii\inertia\Inertia;
 
 Inertia::share([
-    'auth.user' => static fn() => Yii::$app->user->identity,
+    'auth.user' => static fn(): ?array => Yii::$app->user->isGuest
+        ? null
+        : ['id' => Yii::$app->user->getId()],
     'csrf' => static fn(): array => [
         'param' => Yii::$app->request->csrfParam,
         'token' => Yii::$app->request->getCsrfToken(),
