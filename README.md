@@ -5,75 +5,140 @@
         <source media="(prefers-color-scheme: light)" srcset="https://www.yiiframework.com/image/design/logo/yii3_full_for_light.svg">
         <img src="https://www.yiiframework.com/image/design/logo/yii3_full_for_dark.svg" alt="Yii Framework" width="80%">
     </picture>
-    <h1 align="center">Template</h1>
+    <h1 align="center">Inertia</h1>
     <br>
 </p>
 <!-- markdownlint-enable MD041 -->
 
 <p align="center">
-    <a href="https://github.com/yii2-extensions/template/actions/workflows/build.yml" target="_blank">
-        <img src="https://img.shields.io/github/actions/workflow/status/yii2-extensions/template/build.yml?style=for-the-badge&label=PHPUnit&logo=github" alt="PHPUnit">
-    </a>
-    <a href="https://dashboard.stryker-mutator.io/reports/github.com/yii2-extensions/template/main" target="_blank">
-        <img src="https://img.shields.io/endpoint?style=for-the-badge&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyii2-extensions%2Ftemplate%2Fmain" alt="Mutation Testing">
-    </a>
-    <a href="https://github.com/yii2-extensions/template/actions/workflows/static.yml" target="_blank">
-        <img src="https://img.shields.io/github/actions/workflow/status/yii2-extensions/template/static.yml?style=for-the-badge&label=PHPStan&logo=github" alt="PHPStan">
-    </a>
+    <strong>Inertia.js server-side integration layer for <a href="https://github.com/yii2-framework/core">yii2-framework/core</a></strong><br>
+    <em>Server-driven pages, shared props, redirects, and asset version handling without jQuery</em>
 </p>
 
-<p align="center">
-    <strong>A Yii2 extension template to create your own Yii2 extensions</strong><br>
-    <em>PHPUnit, PHPStan, Codeception, and best practices ready out of the box</em>
-</p>
+## Overview
 
-## Features
+`yii2-framework/inertia` is the server-side base package for building modern Inertia-driven pages on top of Yii2.
+It does not ship a client adapter. Instead, it defines the server contract that future packages such as
+`yii2-framework/inertia-vue`, `yii2-framework/inertia-react`, and `yii2-framework/inertia-svelte` can reuse.
 
-<picture>
-    <source media="(min-width: 768px)" srcset="./docs/svgs/features.svg">
-    <img src="./docs/svgs/features-mobile.svg" alt="Feature Overview" style="width: 100%;">
-</picture>
+This package focuses on:
+
+- Inertia page rendering for initial HTML visits and JSON visits.
+- Shared props and lazy prop resolution with PHP closures.
+- Flash message and validation error transport.
+- Asset version mismatch handling.
+- Redirect normalization for Inertia XHR requests.
+- Route-by-route coexistence with legacy Yii2 pages.
+
+## Installation
+
+```bash
+composer require yii2-framework/inertia
+```
+
+Register the bootstrap class in your application configuration:
+
+```php
+return [
+    'bootstrap' => [\yii\inertia\Bootstrap::class],
+];
+```
 
 ## Quick start
 
-### Installation
+Render a page directly from a controller action:
 
-```bash
-composer require github_username/github_repository-name
+```php
+use yii\inertia\Inertia;
+use yii\web\Controller;
+use yii\web\Response;
+
+final class SiteController extends Controller
+{
+    public function actionIndex(): Response
+    {
+        return Inertia::render(
+            'Dashboard', 
+            ['stats' => ['visits' => 42]],
+        );
+    }
+}
 ```
 
-### Basic Usage
+Or extend the convenience controller:
 
-Describe how to use your extension in a basic way.
+```php
+use yii\inertia\web\Controller;
+use yii\web\Response;
+
+final class SiteController extends Controller
+{
+    public function actionIndex(): Response
+    {
+        return $this->inertia(
+            'Dashboard',
+            [
+                'stats' => ['visits' => 42],
+            ]
+        );
+    }
+}
+```
+
+## Configuration example
+
+```php
+use yii\inertia\Manager;
+
+return [
+    'bootstrap' => [\yii\inertia\Bootstrap::class],
+    'components' => [
+        'inertia' => [
+            'class' => Manager::class,
+            'id' => 'app',
+            'rootView' => '@app/views/layouts/inertia.php',
+            'version' => static fn(): int => filemtime(dirname(__DIR__) . '/public/build/manifest.json'),
+            'shared' => ['app.name' => static fn(): string => Yii::$app->name],
+        ],
+    ],
+];
+```
+
+## Validation and flash messages
+
+This package maps the session flash key `errors` to `props.errors` and exposes all remaining flashes at the top-level
+`flash` page key. A typical validation redirect looks like this:
+
+```php
+if (!$model->validate()) {
+    Yii::$app->session->setFlash('errors', $model->getErrors());
+
+    return $this->redirect(['create']);
+}
+
+Yii::$app->session->setFlash('success', 'Record created.');
+
+return $this->redirect(['view', 'id' => $model->id]);
+```
+
+## Package boundaries
+
+This repository intentionally does not include Vue, React, or Svelte bootstrapping. Those concerns belong in separate
+client adapter packages built on top of the server contract defined here.
 
 ## Documentation
 
-For detailed configuration options and advanced usage.
-
-- 📚 [Installation Guide](docs/installation.md)
-- ⚙️ [Configuration Reference](docs/configuration.md)
-- 💡 [Usage Examples](docs/examples.md)
-- 🧪 [Testing Guide](docs/testing.md)
-- 🛠️ [Development Guide](docs/development.md)
+- [Installation Guide](docs/installation.md)
+- [Configuration Reference](docs/configuration.md)
+- [Usage Examples](docs/examples.md)
+- [Testing Guide](docs/testing.md)
+- [Development Notes](docs/development.md)
 
 ## Package information
 
-[![PHP](https://img.shields.io/badge/%3E%3D8.1-777BB4.svg?style=for-the-badge&logo=php&logoColor=white)](https://www.php.net/releases/8.1/en.php)
-[![Yii 2.0.x](https://img.shields.io/badge/2.0.53-0073AA.svg?style=for-the-badge&logo=yii&logoColor=white)](https://github.com/yiisoft/yii2/tree/2.0.53)
-[![Yii 22.0.x](https://img.shields.io/badge/22.0.x-0073AA.svg?style=for-the-badge&logo=yii&logoColor=white)](https://github.com/yiisoft/yii2/tree/22.0)
-[![Latest Stable Version](https://img.shields.io/packagist/v/yii2-extensions/template.svg?style=for-the-badge&logo=packagist&logoColor=white&label=Stable)](https://packagist.org/packages/yii2-extensions/template)
-[![Total Downloads](https://img.shields.io/packagist/dt/yii2-extensions/template.svg?style=for-the-badge&logo=composer&logoColor=white&label=Downloads)](https://packagist.org/packages/yii2-extensions/template)
-
-## Quality code
-
-[![Codecov](https://img.shields.io/codecov/c/github/yii2-extensions/template.svg?style=for-the-badge&logo=codecov&logoColor=white&label=Coverage)](https://codecov.io/github/yii2-extensions/template)
-[![PHPStan Level Max](https://img.shields.io/badge/PHPStan-Level%20Max-4F5D95.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/yii2-extensions/template/actions/workflows/static.yml)
-[![Super-Linter](https://img.shields.io/github/actions/workflow/status/yii2-extensions/template/linter.yml?style=for-the-badge&label=Super-Linter&logo=github)](https://github.com/yii2-extensions/template/actions/workflows/linter.yml)
-[![StyleCI](https://img.shields.io/badge/StyleCI-Passed-44CC11.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.styleci.io/repos/698621511?branch=main)
-
-## Our social networks
-
-[![Follow on X](https://img.shields.io/badge/-Follow%20on%20X-1DA1F2.svg?style=for-the-badge&logo=x&logoColor=white&labelColor=000000)](https://x.com/Terabytesoftw)
+[![PHP](https://img.shields.io/badge/%3E%3D8.2-777BB4.svg?style=for-the-badge&logo=php&logoColor=white)](https://www.php.net/releases/8.2/en.php)
+[![Latest Stable Version](https://img.shields.io/packagist/v/yii2-framework/inertia.svg?style=for-the-badge&logo=packagist&logoColor=white&label=Stable)](https://packagist.org/packages/yii2-framework/inertia)
+[![Total Downloads](https://img.shields.io/packagist/dt/yii2-framework/inertia.svg?style=for-the-badge&logo=composer&logoColor=white&label=Downloads)](https://packagist.org/packages/yii2-framework/inertia)
 
 ## License
 
