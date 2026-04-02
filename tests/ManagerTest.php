@@ -359,6 +359,28 @@ final class ManagerTest extends TestCase
         );
     }
 
+    public function testPartialReloadDropsFilteredParentNotInOnlyList(): void
+    {
+        $this->prepareInertiaRequest();
+        $this->setAbsoluteUrl('/dashboard');
+
+        Yii::$app->getRequest()->getHeaders()->set('X-Inertia-Partial-Component', 'Dashboard');
+        Yii::$app->getRequest()->getHeaders()->set('X-Inertia-Partial-Data', 'stats');
+
+        $response = Inertia::render('Dashboard', [
+            'stats' => ['visits' => 10],
+            'settings' => ['theme' => 'dark', 'lang' => 'en'],
+        ]);
+
+        $page = $this->extractPage($response);
+
+        self::assertSame(
+            ['stats' => ['visits' => 10], 'errors' => []],
+            $page['props'],
+            'Parent "settings" with filtered children should be dropped when not in only list.',
+        );
+    }
+
     public function testPartialReloadDropsUnrequestedEmptyProp(): void
     {
         $this->prepareInertiaRequest();
@@ -696,6 +718,43 @@ final class ManagerTest extends TestCase
             'stats',
             $props,
             "Unrequested top-level prop 'stats' should be excluded.",
+        );
+    }
+
+    public function testPartialReloadPreservesFilteredEmptyParentWhenChildPathRequested(): void
+    {
+        $this->prepareInertiaRequest();
+        $this->setAbsoluteUrl('/dashboard');
+
+        Yii::$app->getRequest()->getHeaders()->set('X-Inertia-Partial-Component', 'Dashboard');
+        Yii::$app->getRequest()->getHeaders()->set('X-Inertia-Partial-Data', 'auth.user');
+
+        $response = Inertia::render(
+            'Dashboard',
+            [
+                'auth' => ['permissions' => ['admin']],
+                'stats' => ['visits' => 10],
+            ],
+        );
+
+        $page = $this->extractPage($response);
+
+        $props = $page['props'];
+
+        self::assertArrayHasKey(
+            'auth',
+            $props,
+            "Parent 'auth' should be preserved when child path 'auth.user' is in the only list.",
+        );
+        self::assertSame(
+            [],
+            $props['auth'],
+            'Auth should be empty after filtering excluded non-matching children.',
+        );
+        self::assertArrayNotHasKey(
+            'stats',
+            $props,
+            'Unrequested top-level prop should be excluded.',
         );
     }
 

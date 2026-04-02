@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace yii\inertia\tests;
 
 use PHPUnit\Framework\Attributes\DataProviderExternal;
+use stdClass;
 use Yii;
+use yii\base\Event;
 use yii\inertia\Manager;
 use yii\inertia\tests\providers\BootstrapProvider;
 use yii\web\Response;
@@ -107,6 +109,23 @@ final class BootstrapTest extends TestCase
             $statusCode,
             $response->statusCode,
             "$method request with $statusCode should not be normalized to 303.",
+        );
+    }
+
+    public function testBeforeSendIgnoresNonResponseSender(): void
+    {
+        $this->prepareInertiaRequest();
+
+        $response = Yii::$app->getResponse();
+
+        $event = new Event();
+        $event->sender = new stdClass();
+
+        $response->trigger(Response::EVENT_BEFORE_SEND, $event);
+
+        self::assertNull(
+            $response->getHeaders()->get('Vary'),
+            'Event with non-Response sender should be ignored without modifying headers.',
         );
     }
 
