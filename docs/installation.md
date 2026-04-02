@@ -24,7 +24,7 @@ return [
 ];
 ```
 
-This bootstrap registers the `inertia` application component, sets the `@inertia` alias, and normalizes Yii AJAX
+This bootstrap registers the `inertia` application component, sets the `@inertia` alias, and normalizes Yii Ajax
 redirects so they follow the Inertia protocol.
 
 ## Client adapter
@@ -47,4 +47,3 @@ and jQuery widgets. In that scenario, use `yii2-framework/jquery` instead.
 - 💡 [Usage Examples](examples.md)
 - 🧪 [Testing Guide](testing.md)
 - 🛠️ [Development Guide](development.md)
-

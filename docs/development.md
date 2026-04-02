@@ -32,9 +32,9 @@ JSON in a `<script type="application/json">` element inside the root application
 > script-element transport you must enable the flag on the client side:
 >
 > ```js
-> import { defaults } from '@inertiajs/vue3' // or react, svelte
+> import { defaults } from "@inertiajs/vue3"; // or react, svelte
 >
-> defaults.future.useScriptElementForInitialPage = true
+> defaults.future.useScriptElementForInitialPage = true;
 > ```
 >
 > Without this flag the page will not hydrate.
