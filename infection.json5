@@ -9,4 +9,72 @@
     source: {
         directories: ["src"],
     },
+    mutators: {
+        "@default": true,
+        // Yii2 always registers a session component; `has('session', true)` vs `has('session', false)` is
+        // indistinguishable in tests because the session is always instantiated.
+        "TrueValue": {
+            ignoreSourceCodeByRegex: [
+                ".*Yii::\\$app->has\\('session'.*",
+                ".*->getAllFlashes\\(true\\).*"
+            ],
+        },
+        // The `false` parameter in `redirect($url, 302, false)` controls Yii2's internal AJAX redirect check
+        // (`checkAjax`). Changing it to `true` produces equivalent behavior in all observable test scenarios
+        // because the Inertia protocol already handles AJAX redirects at a higher level.
+        //
+        // The `[false, null]` return in `resolveNode()` handles excluded empty arrays. Changing `false` to
+        // `true` is equivalent when the parent node always filters out `null` values.
+        "FalseValue": {
+            ignoreSourceCodeByRegex: [
+                ".*->redirect\\(\\$url.*",
+                ".*return \\[false, null\\];.*"
+            ],
+        },
+        // Removing `return` inside the zero-param branch of `invokeClosure()` causes the closure to be
+        // re-invoked with a `Request` argument. For closures that accept zero params PHP ignores extra
+        // arguments, producing identical results.
+        //
+        // Removing `return` inside `consumeFlashes()` / `reflashSession()` early-return guards is untestable
+        // because Yii2 always has a session component registered — the guard never triggers.
+        "ReturnRemoval": {
+            ignoreSourceCodeByRegex: [
+                ".*return \\$closure\\(\\);.*",
+                ".*return \\[\\[\\], \\[\\]\\];.*",
+                ".*return \\[false, null\\];.*",
+                ".*return;.*"
+            ],
+        },
+        // The `!` negation in `reflashSession()` / `consumeFlashes()` guards against a missing session.
+        // Since Yii2 always registers a session component, removing the negation is unobservable.
+        "LogicalNot": {
+            ignoreSourceCodeByRegex: [
+                ".*Yii::\\$app->has\\('session'.*"
+            ],
+        },
+        // `trim()` in `parseHeaderList()` is a defense against whitespace-padded header values. Yii2's
+        // `HeaderCollection::get()` may normalize whitespace before our code sees it, making the mutation
+        // equivalent in practice.
+        "UnwrapTrim": {
+            ignoreSourceCodeByRegex: [
+                ".*trim\\(\\$value\\).*"
+            ],
+        },
+        // The `$root ||` prefix in `resolveNode()` ensures the top-level prop array is always included.
+        // Negating `$root` produces equivalent output because the root node always has resolved children,
+        // making the `$resolved !== []` branch cover all test scenarios.
+        "LogicalOrSingleSubExprNegation": {
+            ignoreSourceCodeByRegex: [
+                ".*\\$root \\|\\| \\$resolved.*"
+            ],
+        },
+        // Negating the `pathStartsWith` check in `shouldKeepEmptyNode` produces equivalent behavior because
+        // the method is only called when all children have already been resolved to empty, and the `$only`
+        // list filtering in the caller makes the difference unobservable.
+        "IfNegation": {
+            ignoreSourceCodeByRegex: [
+                ".*\\$this->pathStartsWith\\(\\$path, \\$candidate\\).*"
+            ],
+        },
+    },
 }

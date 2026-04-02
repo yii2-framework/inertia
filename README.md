@@ -97,7 +97,11 @@ return [
             'class' => Manager::class,
             'id' => 'app',
             'rootView' => '@app/views/layouts/inertia.php',
-            'version' => static fn(): int => filemtime(dirname(__DIR__) . '/public/build/manifest.json'),
+            'version' => static function (): string {
+                $path = dirname(__DIR__) . '/public/build/manifest.json';
+
+                return is_file($path) ? (string) filemtime($path) : '';
+            },
             'shared' => ['app.name' => static fn(): string => Yii::$app->name],
         ],
     ],

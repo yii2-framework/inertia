@@ -28,6 +28,8 @@ final class ApplicationFactory
             Yii::$app->session->close();
         }
 
+        Yii::setAlias('@inertia', null);
+
         Yii::$app = null; // @phpstan-ignore assign.propertyType (Yii2 test teardown pattern)
     }
 
@@ -81,6 +83,6 @@ final class ApplicationFactory
             }
         }
 
-        return dirname(__DIR__, 2) . '/vendor';
+        return $candidates[0];
     }
 }

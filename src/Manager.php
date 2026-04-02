@@ -121,7 +121,7 @@ final class Manager extends Component
         $version = $this->version;
 
         if ($version instanceof Closure) {
-            $version = $version();
+            $version = $this->invokeClosure($version);
         }
 
         if (is_int($version)) {
@@ -360,7 +360,13 @@ final class Manager extends Component
 
         if ($vary === null) {
             $response->getHeaders()->set('Vary', 'X-Inertia');
-        } elseif (stripos($vary, 'X-Inertia') === false) {
+
+            return;
+        }
+
+        $tokens = array_map('trim', explode(',', $vary));
+
+        if (!in_array('X-Inertia', $tokens, true)) {
             $response->getHeaders()->set('Vary', $vary . ', X-Inertia');
         }
     }
@@ -635,7 +641,7 @@ final class Manager extends Component
         }
 
         foreach ($only as $candidate) {
-            if ($this->pathStartsWith($path, $candidate)) {
+            if ($this->pathStartsWith($path, $candidate) || $this->pathStartsWith($candidate, $path)) {
                 return true;
             }
         }

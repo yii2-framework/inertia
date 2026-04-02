@@ -50,8 +50,12 @@ final class Bootstrap implements BootstrapInterface
 
                 if ($vary === null) {
                     $response->getHeaders()->set('Vary', 'X-Inertia');
-                } elseif (stripos($vary, 'X-Inertia') === false) {
-                    $response->getHeaders()->set('Vary', $vary . ', X-Inertia');
+                } else {
+                    $tokens = array_map('trim', explode(',', $vary));
+
+                    if (!in_array('X-Inertia', $tokens, true)) {
+                        $response->getHeaders()->set('Vary', $vary . ', X-Inertia');
+                    }
                 }
 
                 $redirect = $response->getHeaders()->get('X-Redirect');
