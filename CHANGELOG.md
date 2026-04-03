@@ -11,3 +11,4 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - chore: Raise code coverage to `100%` and ensure all tests pass successfully.
 - fix: update `README.md` to reference correct Yii2 framework repository.
 - docs: update installation instructions and correct Yii2 capitalization in `README.md`.
+- fix: update `composer.json` to require the correct Yii2 framework package.
