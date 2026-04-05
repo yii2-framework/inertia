@@ -468,7 +468,7 @@ final class ManagerTest extends TestCase
         $page = $this->extractPage($response);
 
         self::assertSame(
-            ['title' => 'Hello', 'errors' => []],
+            ['title' => 'Hello', 'errors' => [], 'flash' => []],
             $page['props'],
             'Except-excluded props must not leak as null or resolved values.',
         );
