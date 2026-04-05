@@ -353,7 +353,7 @@ final class ManagerTest extends TestCase
         $page = $this->extractPage($response);
 
         self::assertSame(
-            ['title' => 'Hello', 'errors' => []],
+            ['title' => 'Hello', 'errors' => [], 'flash' => []],
             $page['props'],
             'Excluded props must not leak as null or resolved values.',
         );
@@ -375,7 +375,7 @@ final class ManagerTest extends TestCase
         $page = $this->extractPage($response);
 
         self::assertSame(
-            ['stats' => ['visits' => 10], 'errors' => []],
+            ['stats' => ['visits' => 10], 'errors' => [], 'flash' => []],
             $page['props'],
             'Parent "settings" with filtered children should be dropped when not in only list.',
         );

@@ -396,7 +396,8 @@ final class Manager extends Component
     /**
      * Returns `true` if `$path` is explicitly excluded by the `X-Inertia-Partial-Except` list.
      *
-     * Paths under `errors` are never excluded, ensuring validation messages survive partial reloads.
+     * Paths under `errors` and `flash` are never excluded, ensuring validation messages and flash data survive partial
+     * reloads.
      *
      * @param string $path Dot-notation prop path.
      * @param list<string> $except Excluded paths from the partial-except header.
@@ -405,7 +406,12 @@ final class Manager extends Component
      */
     private function isExplicitlyExcluded(string $path, array $except): bool
     {
-        if ($path === 'errors' || str_starts_with($path, 'errors.')) {
+        if (
+            $path === 'errors'
+            || str_starts_with($path, 'errors.')
+            || $path === 'flash'
+            || str_starts_with($path, 'flash.')
+        ) {
             return false;
         }
 
@@ -421,7 +427,7 @@ final class Manager extends Component
     /**
      * Returns `true` if `$path` matches the `X-Inertia-Partial-Data` inclusion list.
      *
-     * Paths under `errors` always match. An empty `$only` list means all paths are included.
+     * Paths under `errors` and `flash` always match. An empty `$only` list means all paths are included.
      *
      * @param string $path Dot-notation prop path.
      * @param list<string> $only Included paths from the partial-data header.
@@ -430,7 +436,12 @@ final class Manager extends Component
      */
     private function matchesOnly(string $path, array $only): bool
     {
-        if ($path === 'errors' || str_starts_with($path, 'errors.')) {
+        if (
+            $path === 'errors'
+            || str_starts_with($path, 'errors.')
+            || $path === 'flash'
+            || str_starts_with($path, 'flash.')
+        ) {
             return true;
         }
 
@@ -568,7 +579,10 @@ final class Manager extends Component
         $resolved = ArrayHelper::merge($this->shared, $props);
 
         $resolved['errors'] = $errors;
-        $resolved['flash'] = $flash;
+
+        if ($flash !== [] || !array_key_exists('flash', $resolved)) {
+            $resolved['flash'] = $flash;
+        }
 
         if (!$this->shouldApplyPartialReload($component)) {
             /** @phpstan-var array<string, mixed> */
