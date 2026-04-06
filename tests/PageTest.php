@@ -20,15 +20,8 @@ final class PageTest extends TestCase
 {
     public function testClearHistoryTrueIncludedInOutput(): void
     {
-        $page = new Page(
-            'Home',
-            [],
-            '/',
-            '',
-            [],
-            true,
-            false,
-        );
+        $page = (new Page('Home', [], '/'))
+            ->withClearHistory();
 
         $serialized = $page->jsonSerialize();
 
@@ -50,11 +43,7 @@ final class PageTest extends TestCase
 
     public function testDefaultClearHistoryIsFalseAndOmittedFromOutput(): void
     {
-        $page = new Page(
-            'Home',
-            [],
-            '/',
-        );
+        $page = new Page('Home', [], '/');
 
         $serialized = $page->jsonSerialize();
 
@@ -67,11 +56,7 @@ final class PageTest extends TestCase
 
     public function testDefaultEncryptHistoryIsFalseAndOmittedFromOutput(): void
     {
-        $page = new Page(
-            'Home',
-            [],
-            '/',
-        );
+        $page = new Page('Home', [], '/');
 
         $serialized = $page->jsonSerialize();
 
@@ -84,15 +69,8 @@ final class PageTest extends TestCase
 
     public function testEncryptHistoryTrueIncludedInOutput(): void
     {
-        $page = new Page(
-            'Home',
-            [],
-            '/',
-            '',
-            [],
-            false,
-            true,
-        );
+        $page = (new Page('Home', [], '/'))
+            ->withEncryptHistory();
 
         $serialized = $page->jsonSerialize();
 
@@ -127,20 +105,102 @@ final class PageTest extends TestCase
     #[DataProviderExternal(PageProvider::class, 'jsonSerialize')]
     public function testJsonSerialize(array $input, array $expected): void
     {
-        $page = new Page(
-            $input['component'],
-            $input['props'],
-            $input['url'],
-            $input['version'],
-            $input['flash'],
-            $input['clearHistory'],
-            $input['encryptHistory'],
-        );
+        $page = (new Page($input['component'], $input['props'], $input['url'], $input['version']))
+            ->withFlash($input['flash'])
+            ->withClearHistory($input['clearHistory'])
+            ->withEncryptHistory($input['encryptHistory']);
 
         self::assertSame(
             $expected,
             $page->jsonSerialize(),
             'Page serialization should match the expected payload.',
+        );
+    }
+
+    public function testReturnNewInstanceWhenSettingAttribute(): void
+    {
+        $page = new Page('Home', [], '/');
+
+        self::assertNotSame(
+            $page,
+            $page->withClearHistory(),
+            'Should return a new instance when setting the attribute, ensuring immutability.',
+        );
+        self::assertNotSame(
+            $page,
+            $page->withDeepMergeProps([]),
+            'Should return a new instance when setting the attribute, ensuring immutability.',
+        );
+        self::assertNotSame(
+            $page,
+            $page->withDeferredProps([]),
+            'Should return a new instance when setting the attribute, ensuring immutability.',
+        );
+        self::assertNotSame(
+            $page,
+            $page->withEncryptHistory(),
+            'Should return a new instance when setting the attribute, ensuring immutability.',
+        );
+        self::assertNotSame(
+            $page,
+            $page->withFlash([]),
+            'Should return a new instance when setting the attribute, ensuring immutability.',
+        );
+        self::assertNotSame(
+            $page,
+            $page->withMatchPropsOn([]),
+            'Should return a new instance when setting the attribute, ensuring immutability.',
+        );
+        self::assertNotSame(
+            $page,
+            $page->withMergeProps([]),
+            'Should return a new instance when setting the attribute, ensuring immutability.',
+        );
+        self::assertNotSame(
+            $page,
+            $page->withOnceProps([]),
+            'Should return a new instance when setting the attribute, ensuring immutability.',
+        );
+        self::assertNotSame(
+            $page,
+            $page->withPrependProps([]),
+            'Should return a new instance when setting the attribute, ensuring immutability.',
+        );
+        self::assertNotSame(
+            $page,
+            $page->withScrollProps([]),
+            'Should return a new instance when setting the attribute, ensuring immutability.',
+        );
+    }
+
+    public function testScrollPropsIncludedWhenNonEmpty(): void
+    {
+        $page = (new Page('Feed', [], '/feed'))
+            ->withScrollProps(['posts' => ['pageName' => 'page', 'currentPage' => 1, 'nextPage' => 2]]);
+
+        $serialized = $page->jsonSerialize();
+
+        self::assertArrayHasKey(
+            'scrollProps',
+            $serialized,
+            "Key 'scrollProps' should appear when non-empty.",
+        );
+        self::assertSame(
+            ['posts' => ['pageName' => 'page', 'currentPage' => 1, 'nextPage' => 2]],
+            $serialized['scrollProps'],
+        );
+    }
+
+    public function testScrollPropsOmittedWhenEmpty(): void
+    {
+        $page = new Page('Home', [], '/');
+
+        $serialized = $page->jsonSerialize();
+
+        self::assertArrayNotHasKey(
+            'scrollProps',
+            $serialized,
+            "Key 'scrollProps' should not appear when empty.",
         );
     }
 }

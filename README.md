@@ -118,6 +118,28 @@ return [
 ];
 ```
 
+## Prop types (v3)
+
+The package supports the Inertia v3 prop types for fine-grained control over when and how props are resolved:
+
+```php
+use yii\inertia\Inertia;
+
+return Inertia::render(
+    'Dashboard',
+    [
+        'stats' => $stats,                                              // regular prop
+        'users' => Inertia::defer(fn () => User::find()->all()),        // loaded after render
+        'activity' => Inertia::optional(fn () => $user->getActivity()), // only on partial reload
+        'auth' => Inertia::always(fn () => ['user' => $identity]),      // always included
+        'items' => Inertia::merge($paginated)->append('data', 'id'),    // merge instead of replace
+        'countries' => Inertia::once(fn () => Country::find()->all()),  // resolved once, cached
+    ],
+);
+```
+
+See the [Usage Examples](docs/examples.md) for detailed documentation on each prop type.
+
 ## Validation and flash messages
 
 This package maps the session flash key `errors` to `props.errors` and exposes all remaining flashes at the top-level

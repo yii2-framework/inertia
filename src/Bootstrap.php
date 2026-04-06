@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace yii\inertia;
 
 use Yii;
-use yii\base\BootstrapInterface;
-use yii\base\Event;
+use yii\base\{BootstrapInterface, Event};
 use yii\web\Response;
 
 use function in_array;

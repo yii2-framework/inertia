@@ -8,11 +8,8 @@ use Closure;
 use ReflectionFunction;
 use Yii;
 use yii\base\Component;
-use yii\helpers\ArrayHelper;
-use yii\helpers\Json;
-use yii\helpers\Url;
-use yii\web\Request;
-use yii\web\Response;
+use yii\helpers\{ArrayHelper, Json, Url};
+use yii\web\{Request, Response};
 
 use function is_array;
 use function is_int;
@@ -184,7 +181,6 @@ final class Manager extends Component
 
             $response->setStatusCode(409);
             $response->getHeaders()->set('X-Inertia-Location', Url::to($url, true));
-
             $this->ensureVaryHeader($response);
 
             return $response;
@@ -235,16 +231,23 @@ final class Manager extends Component
 
             $response->setStatusCode(409);
             $response->getHeaders()->set('X-Inertia-Location', $request->getAbsoluteUrl());
-
             $this->ensureVaryHeader($response);
 
             return $response;
         }
 
         [$errors, $flash] = $this->consumeFlashes();
-        $resolvedProps = $this->resolveProps($component, $props, $errors, $flash);
+        [$resolvedProps, $metadata] = $this->resolvePropsAndMetadata($component, $props, $errors, $flash);
 
-        $page = new Page($component, $resolvedProps, $request->getUrl(), $version, $flash);
+        $page = (new Page($component, $resolvedProps, $request->getUrl(), $version))
+            ->withFlash($flash)
+            ->withDeferredProps($metadata['deferredProps'])
+            ->withMergeProps($metadata['mergeProps'])
+            ->withPrependProps($metadata['prependProps'])
+            ->withDeepMergeProps($metadata['deepMergeProps'])
+            ->withMatchPropsOn($metadata['matchPropsOn'])
+            ->withScrollProps($metadata['scrollProps'])
+            ->withOnceProps($metadata['onceProps']);
 
         $this->ensureVaryHeader($response);
 
@@ -375,6 +378,92 @@ final class Manager extends Component
     }
 
     /**
+     * Collects deferred-prop metadata and returns the callback when the request is a partial reload.
+     *
+     * @phpstan-param array{deferredProps: array<string, list<string>>, mergeProps: list<string>, prependProps: list<string>, deepMergeProps: list<string>, matchPropsOn: array<string, string>, scrollProps: array<string, array<string, mixed>>, onceProps: array<string, array<string, mixed>>} $metadata
+     *
+     * @phpstan-return (Closure(): mixed)|null
+     */
+    private function handleDeferredProp(
+        DeferredProp $prop,
+        string $path,
+        bool $isPartialReload,
+        array &$metadata,
+    ): Closure|null {
+        $metadata['deferredProps'][$prop->getGroup()][] = $path;
+
+        return $isPartialReload ? $prop->getCallback() : null;
+    }
+
+    /**
+     * Collects merge-prop metadata unless the prop is being reset by the client.
+     *
+     * @param list<string> $resetProps Prop paths the client wants to reset.
+     *
+     * @phpstan-param array{deferredProps: array<string, list<string>>, mergeProps: list<string>, prependProps: list<string>, deepMergeProps: list<string>, matchPropsOn: array<string, string>, scrollProps: array<string, array<string, mixed>>, onceProps: array<string, array<string, mixed>>} $metadata
+     */
+    private function handleMergeProp(MergeProp $prop, string $path, array $resetProps, array &$metadata): void
+    {
+        if (in_array($path, $resetProps, true)) {
+            return;
+        }
+
+        $metadata['mergeProps'][] = $path;
+
+        if ($prop->isDeep()) {
+            $metadata['deepMergeProps'][] = $path;
+        }
+
+        foreach ($prop->getAppendPaths() as $appendPath => $matchKey) {
+            $fullPath = $appendPath !== '' ? $path . '.' . $appendPath : $path;
+
+            if ($matchKey !== '') {
+                $metadata['matchPropsOn'][$fullPath] = $matchKey;
+            }
+        }
+
+        foreach ($prop->getPrependPaths() as $prependPath => $matchKey) {
+            $fullPath = $prependPath !== '' ? $path . '.' . $prependPath : $path;
+            $metadata['prependProps'][] = $fullPath;
+
+            if ($matchKey !== '') {
+                $metadata['matchPropsOn'][$fullPath] = $matchKey;
+            }
+        }
+    }
+
+    /**
+     * Collects once-prop metadata and returns the callback, or `null` when the client already has the prop cached.
+     *
+     * @param list<string> $exceptOnceProps Once-prop keys the client already has cached.
+     *
+     * @phpstan-param array{deferredProps: array<string, list<string>>, mergeProps: list<string>, prependProps: list<string>, deepMergeProps: list<string>, matchPropsOn: array<string, string>, scrollProps: array<string, array<string, mixed>>, onceProps: array<string, array<string, mixed>>} $metadata
+     *
+     * @phpstan-return (Closure(): mixed)|null
+     */
+    private function handleOnceProp(OnceProp $prop, string $path, array $exceptOnceProps, array &$metadata): Closure|null
+    {
+        $onceKey = $prop->getKey() ?? $path;
+
+        if (in_array($onceKey, $exceptOnceProps, true)) {
+            return null;
+        }
+
+        /** @phpstan-var array{prop: string, expiresAt?: int} $onceEntry */
+        $onceEntry = ['prop' => $path];
+
+        $expiresAt = $prop->getExpiresAtMs();
+
+        if ($expiresAt !== null) {
+            $onceEntry['expiresAt'] = $expiresAt;
+        }
+
+        $metadata['onceProps'][$onceKey] = $onceEntry;
+
+        return $prop->getCallback();
+    }
+
+    /**
      * Invokes a closure with zero arguments or with the current request as the single argument, depending on its
      * signature.
      *
@@ -397,14 +486,15 @@ final class Manager extends Component
      * Returns `true` if `$path` is explicitly excluded by the `X-Inertia-Partial-Except` list.
      *
      * Paths under `errors` and `flash` are never excluded, ensuring validation messages and flash data survive partial
-     * reloads.
+     * reloads. Paths marked as always-included are also never excluded.
      *
      * @param string $path Dot-notation prop path.
      * @param list<string> $except Excluded paths from the partial-except header.
+     * @param list<string> $alwaysPaths Paths that bypass partial reload filtering.
      *
      * @return bool `true` if the path is explicitly excluded; otherwise, `false`.
      */
-    private function isExplicitlyExcluded(string $path, array $except): bool
+    private function isExplicitlyExcluded(string $path, array $except, array $alwaysPaths = []): bool
     {
         if (
             $path === 'errors'
@@ -413,6 +503,12 @@ final class Manager extends Component
             || str_starts_with($path, 'flash.')
         ) {
             return false;
+        }
+
+        foreach ($alwaysPaths as $alwaysPath) {
+            if ($this->pathStartsWith($path, $alwaysPath) || $this->pathStartsWith($alwaysPath, $path)) {
+                return false;
+            }
         }
 
         foreach ($except as $candidate) {
@@ -427,14 +523,16 @@ final class Manager extends Component
     /**
      * Returns `true` if `$path` matches the `X-Inertia-Partial-Data` inclusion list.
      *
-     * Paths under `errors` and `flash` always match. An empty `$only` list means all paths are included.
+     * Paths under `errors` and `flash` always match. Paths marked as always-included also always match. An empty
+     * `$only` list means all paths are included.
      *
      * @param string $path Dot-notation prop path.
      * @param list<string> $only Included paths from the partial-data header.
+     * @param list<string> $alwaysPaths Paths that bypass partial reload filtering.
      *
      * @return bool `true` if the path matches the inclusion list; otherwise, `false`.
      */
-    private function matchesOnly(string $path, array $only): bool
+    private function matchesOnly(string $path, array $only, array $alwaysPaths = []): bool
     {
         if (
             $path === 'errors'
@@ -443,6 +541,12 @@ final class Manager extends Component
             || str_starts_with($path, 'flash.')
         ) {
             return true;
+        }
+
+        foreach ($alwaysPaths as $alwaysPath) {
+            if ($this->pathStartsWith($path, $alwaysPath) || $this->pathStartsWith($alwaysPath, $path)) {
+                return true;
+            }
         }
 
         if ($only === []) {
@@ -495,6 +599,112 @@ final class Manager extends Component
     }
 
     /**
+     * Walks the props tree, unwraps v3 prop wrappers, collects page metadata, and separates always-included paths.
+     *
+     * Returns an array of `[$unwrappedProps, $alwaysPaths]` where closures from wrappers replace the wrapper objects
+     * and `$alwaysPaths` lists dot-notation paths that bypass partial reload filtering.
+     *
+     * @param array $props Props tree to process.
+     * @param string $prefix Current dot-notation prefix for nested paths.
+     * @param bool $isPartialReload Whether this is a partial reload request.
+     * @param list<string> $resetProps Prop paths the client wants to reset (skip merge metadata).
+     * @param list<string> $exceptOnceProps Once-prop keys the client already has cached.
+     * @param array $metadata Metadata arrays collected by reference.
+     *
+     * @return array Tuple of `[$unwrappedProps, $alwaysPaths]`.
+     *
+     * @phpstan-param array<int|string, mixed> $props
+     * @phpstan-param array{
+     *   deferredProps: array<string, list<string>>,
+     *   mergeProps: list<string>,
+     *   prependProps: list<string>,
+     *   deepMergeProps: list<string>,
+     *   matchPropsOn: array<string, string>,
+     *   scrollProps: array<string, array<string, mixed>>,
+     *   onceProps: array<string, array<string, mixed>>,
+     * } $metadata
+     *
+     * @phpstan-return array{array<int|string, mixed>, list<string>}
+     */
+    private function preprocessProps(
+        array $props,
+        string $prefix,
+        bool $isPartialReload,
+        array $resetProps,
+        array $exceptOnceProps,
+        array &$metadata,
+    ): array {
+        $result = [];
+        /** @phpstan-var list<string> $alwaysPaths */
+        $alwaysPaths = [];
+
+        foreach ($props as $key => $value) {
+            $path = $prefix === '' ? (string) $key : $prefix . '.' . $key;
+
+            if ($value instanceof DeferredProp) {
+                $resolved = $this->handleDeferredProp($value, $path, $isPartialReload, $metadata);
+
+                if ($resolved !== null) {
+                    $result[$key] = $resolved;
+                }
+
+                continue;
+            }
+
+            if ($value instanceof OptionalProp) {
+                if ($isPartialReload) {
+                    $result[$key] = $value->getCallback();
+                }
+
+                continue;
+            }
+
+            if ($value instanceof AlwaysProp) {
+                $result[$key] = $value->getValue();
+                $alwaysPaths[] = $path;
+
+                continue;
+            }
+
+            if ($value instanceof MergeProp) {
+                $this->handleMergeProp($value, $path, $resetProps, $metadata);
+                $result[$key] = $value->getValue();
+
+                continue;
+            }
+
+            if ($value instanceof OnceProp) {
+                $resolved = $this->handleOnceProp($value, $path, $exceptOnceProps, $metadata);
+
+                if ($resolved !== null) {
+                    $result[$key] = $resolved;
+                }
+
+                continue;
+            }
+
+            if (is_array($value) && $value !== []) {
+                [$nested, $nestedAlwaysPaths] = $this->preprocessProps(
+                    $value,
+                    $path,
+                    $isPartialReload,
+                    $resetProps,
+                    $exceptOnceProps,
+                    $metadata,
+                );
+                $result[$key] = $nested;
+                $alwaysPaths = array_merge($alwaysPaths, $nestedAlwaysPaths);
+
+                continue;
+            }
+
+            $result[$key] = $value;
+        }
+
+        return [$result, $alwaysPaths];
+    }
+
+    /**
      * Re-sets all current session flashes so they survive a version-conflict redirect.
      */
     private function reflashSession(): void
@@ -515,19 +725,26 @@ final class Manager extends Component
      * @param string $path Current dot-notation path within the prop tree.
      * @param list<string> $only Included paths from the partial-data header.
      * @param list<string> $except Excluded paths from the partial-except header.
+     * @param list<string> $alwaysPaths Paths that bypass partial reload filtering.
      * @param bool $root Whether this is the root node (always included, never filtered).
      *
      * @return array Tuple of `[$include, $resolvedValue]`.
      *
      * @phpstan-return array{bool, mixed}
      */
-    private function resolveNode(mixed $value, string $path, array $only, array $except, bool $root = false): array
-    {
-        if (!$root && !$this->matchesOnly($path, $only)) {
+    private function resolveNode(
+        mixed $value,
+        string $path,
+        array $only,
+        array $except,
+        array $alwaysPaths = [],
+        bool $root = false,
+    ): array {
+        if (!$root && !$this->matchesOnly($path, $only, $alwaysPaths)) {
             return [false, null];
         }
 
-        if (!$root && $this->isExplicitlyExcluded($path, $except)) {
+        if (!$root && $this->isExplicitlyExcluded($path, $except, $alwaysPaths)) {
             return [false, null];
         }
 
@@ -540,7 +757,7 @@ final class Manager extends Component
 
             foreach ($value as $key => $child) {
                 $childPath = $path === '' ? (string) $key : $path . '.' . $key;
-                [$include, $childValue] = $this->resolveNode($child, $childPath, $only, $except);
+                [$include, $childValue] = $this->resolveNode($child, $childPath, $only, $except, $alwaysPaths);
 
                 if ($include) {
                     $resolved[$key] = $childValue;
@@ -558,23 +775,33 @@ final class Manager extends Component
     }
 
     /**
-     * Merges shared and page props, injects errors and flash data, and applies partial-reload filtering when needed.
+     * Merges shared and page props, preprocesses v3 prop wrappers, and applies partial-reload filtering.
      *
      * @param string $component Frontend component name used to match the partial-reload header.
      * @param array $props Page-level props passed to `render()`.
      * @param array $errors Validation errors extracted from session flashes.
      * @param array $flash Session flash messages extracted from session flashes.
      *
-     * @return array Resolved props ready to be sent to the client, with all closures invoked and filtered according to
-     * the partial reload headers when applicable.
+     * @return array Tuple of `[$resolvedProps, $metadata]`.
      *
      * @phpstan-param array<string, mixed> $props
      * @phpstan-param array<string, mixed> $errors
      * @phpstan-param array<string, mixed> $flash
      *
-     * @phpstan-return array<string, mixed>
+     * @phpstan-return array{
+     *   array<string, mixed>,
+     *   array{
+     *     deferredProps: array<string, list<string>>,
+     *     mergeProps: list<string>,
+     *     prependProps: list<string>,
+     *     deepMergeProps: list<string>,
+     *     matchPropsOn: array<string, string>,
+     *     scrollProps: array<string, array<string, mixed>>,
+     *     onceProps: array<string, array<string, mixed>>,
+     *   },
+     * }
      */
-    private function resolveProps(string $component, array $props, array $errors, array $flash): array
+    private function resolvePropsAndMetadata(string $component, array $props, array $errors, array $flash): array
     {
         $resolved = ArrayHelper::merge($this->shared, $props);
 
@@ -584,19 +811,55 @@ final class Manager extends Component
             $resolved['flash'] = $flash;
         }
 
-        if (!$this->shouldApplyPartialReload($component)) {
-            /** @phpstan-var array<string, mixed> */
-            return $this->resolveValue($resolved);
-        }
-
         $request = Yii::$app->getRequest();
+        $isPartialReload = $this->shouldApplyPartialReload($component);
+
+        $resetProps = $this->parseHeaderList($request->getHeaders()->get('X-Inertia-Reset'));
+        $exceptOnceProps = $this->parseHeaderList($request->getHeaders()->get('X-Inertia-Except-Once-Props'));
+
+        /**
+         * @phpstan-var array{
+         *   deferredProps: array<string, list<string>>,
+         *   mergeProps: list<string>,
+         *   prependProps: list<string>,
+         *   deepMergeProps: list<string>,
+         *   matchPropsOn: array<string, string>,
+         *   scrollProps: array<string, array<string, mixed>>,
+         *   onceProps: array<string, array<string, mixed>>,
+         * } $metadata
+         */
+        $metadata = [
+            'deferredProps' => [],
+            'mergeProps' => [],
+            'prependProps' => [],
+            'deepMergeProps' => [],
+            'matchPropsOn' => [],
+            'scrollProps' => [],
+            'onceProps' => [],
+        ];
+
+        [$preprocessed, $alwaysPaths] = $this->preprocessProps(
+            $resolved,
+            '',
+            $isPartialReload,
+            $resetProps,
+            $exceptOnceProps,
+            $metadata,
+        );
+
+        if (!$isPartialReload) {
+            /** @phpstan-var array<string, mixed> $resolvedProps */
+            $resolvedProps = $this->resolveValue($preprocessed);
+
+            return [$resolvedProps, $metadata];
+        }
 
         $only = $this->parseHeaderList($request->getHeaders()->get('X-Inertia-Partial-Data'));
         $except = $this->parseHeaderList($request->getHeaders()->get('X-Inertia-Partial-Except'));
-        [, $filtered] = $this->resolveNode($resolved, '', $only, $except, true);
+        [, $filtered] = $this->resolveNode($preprocessed, '', $only, $except, $alwaysPaths, true);
 
-        /** @phpstan-var array<string, mixed> */
-        return $filtered;
+        /** @phpstan-var array<string, mixed> $filtered */
+        return [$filtered, $metadata];
     }
 
     /**

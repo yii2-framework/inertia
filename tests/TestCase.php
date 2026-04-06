@@ -38,27 +38,28 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     /**
      * Extracts the page object from an HTML or JSON response.
      *
-     * @return array Page payload containing 'component', 'props', 'url', 'version', and optionally 'flash' keys.
+     * @return array Page payload containing 'component', 'props', 'url', 'version', and optional v3 metadata keys.
      *
      * @phpstan-return array{
      *   component: string,
      *   props: array<string, mixed>,
-     *   url: string, version: int|string,
+     *   url: string,
+     *   version: int|string,
      *   flash?: array<string, mixed>,
+     *   clearHistory?: bool,
+     *   encryptHistory?: bool,
+     *   deferredProps?: array<string, list<string>>,
+     *   mergeProps?: list<string>,
+     *   prependProps?: list<string>,
+     *   deepMergeProps?: list<string>,
+     *   matchPropsOn?: array<string, string>,
+     *   scrollProps?: array<string, array<string, mixed>>,
+     *   onceProps?: array<string, array<string, mixed>>,
      * }
      */
     protected function extractPage(Response $response): array
     {
         if ($response->data instanceof Page) {
-            /**
-             * @phpstan-var array{
-             *   component: string,
-             *   props: array<string, mixed>,
-             *   url: string,
-             *   version: int|string,
-             *   flash?: array<string, mixed>
-             * }
-             */
             return $response->data->jsonSerialize();
         }
 
@@ -91,8 +92,17 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
          *   props: array<string, mixed>,
          *   url: string,
          *   version: int|string,
-         *   flash?: array<string, mixed>
-         * }
+         *   flash?: array<string, mixed>,
+         *   clearHistory?: bool,
+         *   encryptHistory?: bool,
+         *   deferredProps?: array<string, list<string>>,
+         *   mergeProps?: list<string>,
+         *   prependProps?: list<string>,
+         *   deepMergeProps?: list<string>,
+         *   matchPropsOn?: array<string, string>,
+         *   scrollProps?: array<string, array<string, mixed>>,
+         *   onceProps?: array<string, array<string, mixed>>,
+         * } $decoded
          */
         return $decoded;
     }
