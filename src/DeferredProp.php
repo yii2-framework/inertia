@@ -32,7 +32,7 @@ final class DeferredProp
      * @param Closure $callback Closure resolved when the client requests this prop.
      * @param string $group Group name for batching deferred requests.
      *
-     * @phpstan-param Closure(): mixed $callback
+     * @phpstan-param (Closure(): mixed)|(Closure(\yii\web\Request): mixed) $callback
      */
     public function __construct(private readonly Closure $callback, private readonly string $group = 'default') {}
 
@@ -48,7 +48,7 @@ final class DeferredProp
      *
      * @return Closure Closure to be evaluated when the client requests this prop.
      *
-     * @phpstan-return Closure(): mixed
+     * @phpstan-return (Closure(): mixed)|(Closure(\yii\web\Request): mixed)
      */
     public function getCallback(): Closure
     {

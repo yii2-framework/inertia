@@ -85,7 +85,7 @@ final class Inertia
      *
      * @return DeferredProp Prop instance that is resolved when the client requests it via a partial reload.
      *
-     * @phpstan-param Closure(): mixed $callback
+     * @phpstan-param (Closure(): mixed)|(Closure(\yii\web\Request): mixed) $callback
      */
     public static function defer(Closure $callback, string $group = 'default'): DeferredProp
     {
@@ -205,7 +205,7 @@ final class Inertia
      *
      * @return OnceProp Prop instance that is resolved once and cached on the client side.
      *
-     * @phpstan-param Closure(): mixed $callback
+     * @phpstan-param (Closure(): mixed)|(Closure(\yii\web\Request): mixed) $callback
      */
     public static function once(Closure $callback): OnceProp
     {
@@ -230,7 +230,7 @@ final class Inertia
      *
      * @return OptionalProp Prop instance that is only resolved when explicitly requested via a partial reload.
      *
-     * @phpstan-param Closure(): mixed $callback
+     * @phpstan-param (Closure(): mixed)|(Closure(\yii\web\Request): mixed) $callback
      */
     public static function optional(Closure $callback): OptionalProp
     {

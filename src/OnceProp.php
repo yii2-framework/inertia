@@ -36,7 +36,7 @@ final class OnceProp
     /**
      * @param Closure $callback Closure resolved once and cached by the client.
      *
-     * @phpstan-param Closure(): mixed $callback
+     * @phpstan-param (Closure(): mixed)|(Closure(\yii\web\Request): mixed) $callback
      */
     public function __construct(private readonly Closure $callback) {}
 
@@ -73,7 +73,7 @@ final class OnceProp
      *
      * @return Closure Callback that produces the once-prop value.
      *
-     * @phpstan-return Closure(): mixed
+     * @phpstan-return (Closure(): mixed)|(Closure(\yii\web\Request): mixed)
      */
     public function getCallback(): Closure
     {

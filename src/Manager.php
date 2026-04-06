@@ -379,7 +379,7 @@ final class Manager extends Component
      *
      * @phpstan-param array{deferredProps: array<string, list<string>>, mergeProps: list<string>, prependProps: list<string>, deepMergeProps: list<string>, matchPropsOn: array<string, string>, scrollProps: array<string, array<string, mixed>>, onceProps: array<string, array<string, mixed>>} $metadata
      *
-     * @phpstan-return (Closure(): mixed)|null
+     * @phpstan-return (Closure(): mixed)|(Closure(\yii\web\Request): mixed)|null
      */
     private function handleDeferredProp(
         DeferredProp $prop,
@@ -436,7 +436,7 @@ final class Manager extends Component
      *
      * @phpstan-param array{deferredProps: array<string, list<string>>, mergeProps: list<string>, prependProps: list<string>, deepMergeProps: list<string>, matchPropsOn: array<string, string>, scrollProps: array<string, array<string, mixed>>, onceProps: array<string, array<string, mixed>>} $metadata
      *
-     * @phpstan-return (Closure(): mixed)|null
+     * @phpstan-return (Closure(): mixed)|(Closure(\yii\web\Request): mixed)|null
      */
     private function handleOnceProp(OnceProp $prop, string $path, array $exceptOnceProps, array &$metadata): Closure|null
     {
@@ -465,7 +465,7 @@ final class Manager extends Component
      *
      * @param Closure $closure Closure to invoke.
      *
-     * @phpstan-param Closure(): mixed|Closure(Request): mixed $closure
+     * @phpstan-param Closure(): mixed|Closure(\yii\web\Request): mixed $closure
      */
     private function invokeClosure(Closure $closure): mixed
     {
