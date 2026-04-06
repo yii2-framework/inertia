@@ -14,3 +14,4 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - fix: update `composer.json` to require the correct Yii2 framework package.
 - refactor: move `flash` and `errors` injection into `resolveProps()` and fix `consumeFlashes()` session initialization so flash data reaches Vue components reliably.
 - feat: add Inertia `v3` protocol support with prop wrappers, new page object fields, and partial-reload header handling.
+- feat: add `web\Request` with `cookie-to-header` CSRF protection compatible with Inertia's built-in HTTP client.

@@ -1,0 +1,261 @@
+<?php
+
+declare(strict_types=1);
+
+namespace yii\inertia\tests;
+
+use Yii;
+use yii\helpers\ArrayHelper;
+use yii\inertia\tests\support\stub\MockerFunctions;
+use yii\inertia\web\Request;
+
+/**
+ * Unit tests for {@see Request}.
+ *
+ * @author Wilmer Arambula <terabytesoftw@gmail.com>
+ * @since 0.2
+ */
+final class RequestTest extends TestCase
+{
+    public function testCsrfCookieHttpOnlyIsFalse(): void
+    {
+        $this->mockWebApplicationWithInertiaRequest();
+
+        $request = Yii::$app->getRequest();
+
+        self::assertInstanceOf(Request::class, $request);
+        self::assertFalse(
+            $request->csrfCookie['httpOnly'] ?? true,
+            "Key 'httpOnly' should be `false` so JavaScript can read the cookie.",
+        );
+    }
+
+    public function testCsrfHeaderDefaultsToXXsrfToken(): void
+    {
+        $this->mockWebApplicationWithInertiaRequest();
+
+        $request = Yii::$app->getRequest();
+
+        self::assertInstanceOf(Request::class, $request);
+        self::assertSame('X-XSRF-TOKEN', $request->csrfHeader);
+    }
+
+    public function testCsrfParamDefaultsToXsrfToken(): void
+    {
+        $this->mockWebApplicationWithInertiaRequest();
+
+        $request = Yii::$app->getRequest();
+
+        self::assertInstanceOf(Request::class, $request);
+        self::assertSame('XSRF-TOKEN', $request->csrfParam);
+    }
+
+    public function testGetCsrfTokenFromHeaderCallsUnserializeWithAllowedClassesFalse(): void
+    {
+        $this->mockWebApplicationWithInertiaRequest();
+
+        $request = Yii::$app->getRequest();
+
+        self::assertInstanceOf(Request::class, $request);
+
+        $signed = Yii::$app->getSecurity()->hashData(
+            serialize(['XSRF-TOKEN', 'token-value']),
+            $request->cookieValidationKey,
+        );
+
+        MockerFunctions::reset();
+
+        $request->headers->set('X-XSRF-TOKEN', $signed);
+        $request->getCsrfTokenFromHeader();
+
+        $calls = MockerFunctions::getUnserializeCalls();
+
+        self::assertCount(1, $calls, 'Should call unserialize exactly once.');
+        self::assertArrayHasKey('allowed_classes', $calls[0]['options']);
+        self::assertFalse(
+            $calls[0]['options']['allowed_classes'],
+            "Option 'allowed_classes' should be `false` to prevent object instantiation.",
+        );
+    }
+
+    public function testGetCsrfTokenFromHeaderExtractsTokenFromSignedCookie(): void
+    {
+        $this->mockWebApplicationWithInertiaRequest();
+
+        $request = Yii::$app->getRequest();
+
+        self::assertInstanceOf(Request::class, $request);
+
+        $maskedToken = 'masked-csrf-token-value';
+        $signed = Yii::$app->getSecurity()->hashData(
+            serialize(['XSRF-TOKEN', $maskedToken]),
+            $request->cookieValidationKey,
+        );
+
+        $request->headers->set('X-XSRF-TOKEN', $signed);
+
+        self::assertSame(
+            $maskedToken,
+            $request->getCsrfTokenFromHeader(),
+            'Should unsign and extract the masked token from a valid HMAC-signed header.',
+        );
+    }
+
+    public function testGetCsrfTokenFromHeaderRejectsSerializedObjects(): void
+    {
+        $this->mockWebApplicationWithInertiaRequest();
+
+        $request = Yii::$app->getRequest();
+
+        self::assertInstanceOf(Request::class, $request);
+
+        $signed = Yii::$app->getSecurity()->hashData(
+            serialize(['XSRF-TOKEN', new \stdClass()]),
+            $request->cookieValidationKey,
+        );
+
+        $request->headers->set('X-XSRF-TOKEN', $signed);
+
+        self::assertNull(
+            $request->getCsrfTokenFromHeader(),
+            'Should return `null` when payload contains serialized objects.',
+        );
+    }
+
+    public function testGetCsrfTokenFromHeaderReturnsNullForInvalidHmac(): void
+    {
+        $this->mockWebApplicationWithInertiaRequest();
+
+        $request = Yii::$app->getRequest();
+
+        self::assertInstanceOf(Request::class, $request);
+
+        $request->headers->set('X-XSRF-TOKEN', 'tampered-garbage-value');
+
+        self::assertNull(
+            $request->getCsrfTokenFromHeader(),
+            'Should return `null` when HMAC validation fails.',
+        );
+    }
+
+    public function testGetCsrfTokenFromHeaderReturnsNullForInvalidPayload(): void
+    {
+        $this->mockWebApplicationWithInertiaRequest();
+
+        $request = Yii::$app->getRequest();
+
+        self::assertInstanceOf(Request::class, $request);
+
+        $signed = Yii::$app->getSecurity()->hashData(
+            serialize(['WRONG-PARAM', 'some-token']),
+            $request->cookieValidationKey,
+        );
+
+        $request->headers->set('X-XSRF-TOKEN', $signed);
+
+        self::assertNull(
+            $request->getCsrfTokenFromHeader(),
+            'Should return `null` when the deserialized payload has a mismatched param name.',
+        );
+    }
+
+    public function testGetCsrfTokenFromHeaderReturnsNullForNonArrayPayload(): void
+    {
+        $this->mockWebApplicationWithInertiaRequest();
+
+        $request = Yii::$app->getRequest();
+
+        self::assertInstanceOf(Request::class, $request);
+
+        $signed = Yii::$app->getSecurity()->hashData(
+            serialize('not-an-array'),
+            $request->cookieValidationKey,
+        );
+
+        $request->headers->set('X-XSRF-TOKEN', $signed);
+
+        self::assertNull(
+            $request->getCsrfTokenFromHeader(),
+            'Should return `null` when the deserialized payload is not an array.',
+        );
+    }
+
+    public function testGetCsrfTokenFromHeaderReturnsNullForNonStringToken(): void
+    {
+        $this->mockWebApplicationWithInertiaRequest();
+
+        $request = Yii::$app->getRequest();
+
+        self::assertInstanceOf(Request::class, $request);
+
+        $signed = Yii::$app->getSecurity()->hashData(
+            serialize(['XSRF-TOKEN', 12345]),
+            $request->cookieValidationKey,
+        );
+
+        $request->headers->set('X-XSRF-TOKEN', $signed);
+
+        self::assertNull(
+            $request->getCsrfTokenFromHeader(),
+            'Should return `null` when the token value is not a string.',
+        );
+    }
+
+    public function testGetCsrfTokenFromHeaderReturnsNullWhenHeaderAbsent(): void
+    {
+        $this->mockWebApplicationWithInertiaRequest();
+
+        $request = Yii::$app->getRequest();
+
+        self::assertInstanceOf(Request::class, $request);
+        self::assertNull(
+            $request->getCsrfTokenFromHeader(),
+            'Should return `null` when header is absent.',
+        );
+    }
+
+    public function testGetCsrfTokenFromHeaderReturnsRawTokenWhenCookieValidationDisabled(): void
+    {
+        $this->mockWebApplicationWithInertiaRequest([
+            'components' => [
+                'request' => [
+                    'enableCookieValidation' => false,
+                ],
+            ],
+        ]);
+
+        $request = Yii::$app->getRequest();
+
+        self::assertInstanceOf(Request::class, $request);
+
+        $request->headers->set('X-XSRF-TOKEN', 'raw-token-value');
+
+        self::assertSame(
+            'raw-token-value',
+            $request->getCsrfTokenFromHeader(),
+            'Should return the raw header value when cookie validation is disabled.',
+        );
+    }
+
+    /**
+     * @phpstan-param array<string, mixed> $override
+     */
+    private function mockWebApplicationWithInertiaRequest(array $override = []): void
+    {
+        $this->destroyApplication();
+
+        /** @var array<string, mixed> $config */
+        $config = ArrayHelper::merge(
+            [
+                'components' => [
+                    'request' => [
+                        'class' => Request::class,
+                    ],
+                ],
+            ],
+            $override,
+        );
+
+        $this->mockWebApplication($config);
+    }
+}

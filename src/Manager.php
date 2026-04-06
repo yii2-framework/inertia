@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace yii\inertia;
 
 use Closure;
-use ReflectionFunction;
 use Yii;
 use yii\base\Component;
 use yii\helpers\{ArrayHelper, Json, Url};
@@ -222,8 +221,6 @@ final class Manager extends Component
         $version = $this->getVersion();
 
         if ($this->shouldReturnVersionConflict($request, $version)) {
-            $this->reflashSession();
-
             $response->format = Response::FORMAT_RAW;
 
             $response->content = '';
@@ -464,8 +461,7 @@ final class Manager extends Component
     }
 
     /**
-     * Invokes a closure with zero arguments or with the current request as the single argument, depending on its
-     * signature.
+     * Invokes a closure passing the current request. Closures that declare no parameters silently ignore it.
      *
      * @param Closure $closure Closure to invoke.
      *
@@ -473,12 +469,6 @@ final class Manager extends Component
      */
     private function invokeClosure(Closure $closure): mixed
     {
-        $reflection = new ReflectionFunction($closure);
-
-        if ($reflection->getNumberOfRequiredParameters() === 0) {
-            return $closure();
-        }
-
         return $closure(Yii::$app->getRequest());
     }
 
@@ -573,7 +563,7 @@ final class Manager extends Component
      */
     private function parseHeaderList(string|null $value): array
     {
-        if ($value === null || trim($value) === '') {
+        if ($value === null || $value === '') {
             return [];
         }
 
@@ -702,20 +692,6 @@ final class Manager extends Component
         }
 
         return [$result, $alwaysPaths];
-    }
-
-    /**
-     * Re-sets all current session flashes so they survive a version-conflict redirect.
-     */
-    private function reflashSession(): void
-    {
-        if (!Yii::$app->has('session', true)) {
-            return;
-        }
-
-        foreach (Yii::$app->getSession()->getAllFlashes(true) as $key => $value) {
-            Yii::$app->getSession()->setFlash((string) $key, $value);
-        }
     }
 
     /**

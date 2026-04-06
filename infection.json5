@@ -11,30 +11,5 @@
     },
     mutators: {
         "@default": true,
-        // Removing `return` inside the zero-param branch of `invokeClosure()` causes the closure to be
-        // re-invoked with a `Request` argument. PHP silently ignores extra arguments for closures,
-        // producing identical results. Genuinely equivalent.
-        ReturnRemoval: {
-            ignoreSourceCodeByRegex: [".*return \\$closure\\(\\);.*"],
-        },
-        // Negating `$root` in `resolveNode()` is equivalent because root always has resolved children.
-        LogicalOrSingleSubExprNegation: {
-            ignoreSourceCodeByRegex: [".*\\$root \\|\\| \\$resolved.*"],
-        },
-        // `has('session', true)` checks instance existence. Changing `true` to `false` checks definition
-        // existence instead, which always returns `true` in Yii2 web apps (session is a core component).
-        // The guard still works — `getSession()` succeeds via lazy loading. Not observable without mocking
-        // the Application service locator.
-        TrueValue: {
-            ignoreSourceCodeByRegex: [
-                ".*Yii::\\$app->has\\('session'.*",
-                ".*->getAllFlashes\\(true\\).*",
-            ],
-        },
-        // `trim()` defends against whitespace-only header values. Yii2's `HeaderCollection::get()` never
-        // produces whitespace-only strings in practice, making the mutation equivalent.
-        UnwrapTrim: {
-            ignoreSourceCodeByRegex: [".*trim.*"],
-        },
     },
 }

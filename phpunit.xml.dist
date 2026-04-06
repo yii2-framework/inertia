@@ -10,6 +10,10 @@
   failOnWarning="true"
   stopOnFailure="false"
 >
+  <extensions>
+    <bootstrap class="yii\inertia\tests\support\MockerExtension"/>
+  </extensions>
+
   <testsuites>
     <testsuite name="Yii2Framework-Inertia">
       <directory>tests</directory>

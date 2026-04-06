@@ -257,6 +257,21 @@ final class ManagerV3Test extends TestCase
         );
     }
 
+    public function testFlashIsConsumedFromSessionAfterRender(): void
+    {
+        $this->setAbsoluteUrl('/dashboard');
+
+        Yii::$app->getSession()->setFlash('success', 'Saved.');
+
+        Inertia::render('Dashboard', ['title' => 'Home']);
+
+        self::assertSame(
+            [],
+            Yii::$app->getSession()->getAllFlashes(),
+            'Session flashes should be consumed after render.',
+        );
+    }
+
     public function testFlashIsEmptyArrayWhenNoFlashData(): void
     {
         $this->setAbsoluteUrl('/dashboard');
@@ -907,6 +922,26 @@ final class ManagerV3Test extends TestCase
         );
     }
 
+    public function testParseHeaderListWithWhitespaceOnlyReturnsEmpty(): void
+    {
+        $this->prepareInertiaRequest();
+        $this->setAbsoluteUrl('/dashboard');
+
+        Yii::$app->getRequest()->getHeaders()->set('X-Inertia-Partial-Component', 'Dashboard');
+        Yii::$app->getRequest()->getHeaders()->set('X-Inertia-Partial-Data', '   ');
+
+        $response = Inertia::render('Dashboard', [
+            'stats' => 42,
+            'title' => 'Home',
+        ]);
+
+        $page = $this->extractPage($response);
+        $props = $page['props'];
+
+        self::assertArrayHasKey('stats', $props, "Key 'stats' should be present when partial data is whitespace-only.");
+        self::assertArrayHasKey('title', $props, "Key 'title' should be present when partial data is whitespace-only.");
+    }
+
     public function testSessionFlashOverridesSharedFlashWhenNonEmpty(): void
     {
         $this->setAbsoluteUrl('/dashboard');
@@ -935,6 +970,22 @@ final class ManagerV3Test extends TestCase
             ['success' => 'Session flash'],
             $props['flash'],
             "Non-empty session flash 'should' override shared 'flash' value.",
+        );
+    }
+
+    public function testVaryHeaderWithWhitespaceOnlyTreatedAsEmpty(): void
+    {
+        $this->prepareInertiaRequest();
+        $this->setAbsoluteUrl('/dashboard');
+
+        Yii::$app->getResponse()->getHeaders()->set('Vary', '   ');
+
+        $response = Inertia::render('Dashboard', ['title' => 'Home']);
+
+        self::assertSame(
+            'X-Inertia',
+            $response->getHeaders()->get('Vary'),
+            "Whitespace-only Vary header should be treated as empty and replaced with 'X-Inertia'.",
         );
     }
 }

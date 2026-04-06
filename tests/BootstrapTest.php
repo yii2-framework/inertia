@@ -40,6 +40,22 @@ final class BootstrapTest extends TestCase
             'Vary header should append X-Inertia to existing values.',
         );
     }
+    public function testBeforeSendAppendsVaryHeaderWhenWhitespaceOnly(): void
+    {
+        $this->prepareInertiaRequest();
+        $this->setAbsoluteUrl('/dashboard');
+
+        $response = Yii::$app->getResponse();
+
+        $response->getHeaders()->set('Vary', '   ');
+        $response->trigger(Response::EVENT_BEFORE_SEND);
+
+        self::assertSame(
+            'X-Inertia',
+            $response->getHeaders()->get('Vary'),
+            "Whitespace-only Vary header should be treated as empty and set to 'X-Inertia'.",
+        );
+    }
 
     public function testBeforeSendDoesNotDuplicateVaryHeader(): void
     {
