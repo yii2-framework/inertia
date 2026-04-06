@@ -126,7 +126,7 @@ The package supports the Inertia v3 prop types for fine-grained control over whe
 use yii\inertia\Inertia;
 
 return Inertia::render(
-    'Dashboard', 
+    'Dashboard',
     [
         'stats' => $stats,                                              // regular prop
         'users' => Inertia::defer(fn () => User::find()->all()),        // loaded after render

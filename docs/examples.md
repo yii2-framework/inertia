@@ -23,7 +23,7 @@ Inertia::share(
 
 ```php
 return Inertia::render(
-    'Users/Index', 
+    'Users/Index',
     [
         'users' => $dataProvider->getModels(),
         'filters' => Yii::$app->request->getQueryParams(),
@@ -57,7 +57,7 @@ group are fetched together.
 
 ```php
 return Inertia::render(
-    'Dashboard', 
+    'Dashboard',
     [
         'stats' => $stats,
         'users' => Inertia::defer(fn () => User::find()->all()),
@@ -72,8 +72,7 @@ Props only resolved when the client explicitly requests them via a partial reloa
 
 ```php
 return Inertia::render(
-    'Users/Show', 
-    
+    'Users/Show',
     [
         'user' => $user->toArray(),
         'activity' => Inertia::optional(fn () => $user->getActivityLog()),
@@ -87,7 +86,7 @@ Props included in every response, even during partial reloads that do not list t
 
 ```php
 return Inertia::render(
-    'Dashboard', 
+    'Dashboard',
     [
         'auth' => Inertia::always(fn () => ['user' => Yii::$app->user->identity]),
         'stats' => $stats,
@@ -101,7 +100,7 @@ Props that merge with existing client-side data during partial reloads instead o
 
 ```php
 return Inertia::render(
-    'Users/Index', 
+    'Users/Index',
     [
         'users' => Inertia::merge($paginatedUsers)->append('data', 'id'),
         'logs' => Inertia::deepMerge($nestedLogs),
@@ -112,11 +111,11 @@ return Inertia::render(
 
 ## Once props
 
-Props resolved once and cached on the client side with an optional TTL.
+Props resolved once and cached on the client-side with an optional TTL.
 
 ```php
 return Inertia::render(
-    'Settings', 
+    'Settings',
     [
         'countries' => Inertia::once(fn () => Country::find()->all())
             ->as('countries-v1')
