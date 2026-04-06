@@ -469,7 +469,7 @@ final class Manager extends Component
      *
      * @param Closure $closure Closure to invoke.
      *
-     * @phpstan-param Closure(): mixed|Closure(\yii\web\Request): mixed $closure
+     * @phpstan-param (Closure(): mixed)|(Closure(\yii\web\Request): mixed) $closure
      */
     private function invokeClosure(Closure $closure): mixed
     {
