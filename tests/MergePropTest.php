@@ -24,6 +24,7 @@ final class MergePropTest extends TestCase
             'Append with associative array should map paths to match keys.',
         );
     }
+
     public function testAppendWithEmptyStringReturnsEmptyPaths(): void
     {
         $merge = (new MergeProp([]))->append('');
@@ -34,6 +35,7 @@ final class MergePropTest extends TestCase
             'Should return an empty array when path is an empty string.',
         );
     }
+
     public function testAppendWithStringPathAndMatchOn(): void
     {
         $merge = (new MergeProp(['item']))->append('data', 'id');
