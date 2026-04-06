@@ -85,7 +85,7 @@ class Request extends \yii\web\Request
         $data = @unserialize($data, ['allowed_classes' => false]);
 
         if (is_array($data) && isset($data[0], $data[1]) && $data[0] === $this->csrfParam && is_string($data[1])) {
-            return $data[1];
+            return Yii::$app->getSecurity()->maskToken($data[1]);
         }
 
         return null;

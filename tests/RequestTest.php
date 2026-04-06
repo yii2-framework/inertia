@@ -97,10 +97,15 @@ final class RequestTest extends TestCase
 
         $_SERVER['REQUEST_METHOD'] = 'POST';
 
-        $csrfToken = $request->getCsrfToken();
+        // getCsrfToken() generates a raw token and stores it in the response cookie.
+        $request->getCsrfToken();
+
+        $cookie = Yii::$app->getResponse()->getCookies()->get('XSRF-TOKEN');
+
+        self::assertNotNull($cookie, 'Response should contain the XSRF-TOKEN cookie.');
 
         $signed = Yii::$app->getSecurity()->hashData(
-            serialize(['XSRF-TOKEN', $csrfToken]),
+            serialize(['XSRF-TOKEN', $cookie->value]),
             $request->cookieValidationKey,
         );
 
@@ -140,7 +145,7 @@ final class RequestTest extends TestCase
         );
     }
 
-    public function testGetCsrfTokenFromHeaderExtractsTokenFromSignedCookie(): void
+    public function testGetCsrfTokenFromHeaderExtractsAndMasksToken(): void
     {
         $this->mockWebApplicationWithInertiaRequest();
 
@@ -148,18 +153,26 @@ final class RequestTest extends TestCase
 
         self::assertInstanceOf(Request::class, $request);
 
-        $maskedToken = 'masked-csrf-token-value';
+        $rawToken = 'raw-csrf-token-value-32chars-ok!';
         $signed = Yii::$app->getSecurity()->hashData(
-            serialize(['XSRF-TOKEN', $maskedToken]),
+            serialize(['XSRF-TOKEN', $rawToken]),
             $request->cookieValidationKey,
         );
 
         $request->headers->set('X-XSRF-TOKEN', $signed);
 
+        $result = $request->getCsrfTokenFromHeader();
+
+        self::assertNotNull($result, 'Should return a non-null token.');
+        self::assertNotSame(
+            $rawToken,
+            $result,
+            'Should return a masked token, not the raw token.',
+        );
         self::assertSame(
-            $maskedToken,
-            $request->getCsrfTokenFromHeader(),
-            'Should unsign and extract the masked token from a valid HMAC-signed header.',
+            $rawToken,
+            Yii::$app->getSecurity()->unmaskToken($result),
+            'Unmasking the returned token should recover the original raw token.',
         );
     }
 
