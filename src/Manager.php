@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace yii\inertia;
 
 use Closure;
+use ReflectionFunction;
 use Yii;
 use yii\base\Component;
 use yii\helpers\{ArrayHelper, Json, Url};
@@ -461,7 +462,10 @@ final class Manager extends Component
     }
 
     /**
-     * Invokes a closure passing the current request. Closures that declare no parameters silently ignore it.
+     * Invokes a closure with zero arguments or with the current request, depending on its arity.
+     *
+     * Zero-parameter closures wrapping internal PHP functions (e.g. `Closure::fromCallable('time')`) throw
+     * `ArgumentCountError` when called with extra arguments, so the parameter count must be checked first.
      *
      * @param Closure $closure Closure to invoke.
      *
@@ -469,7 +473,9 @@ final class Manager extends Component
      */
     private function invokeClosure(Closure $closure): mixed
     {
-        return $closure(Yii::$app->getRequest());
+        return (new ReflectionFunction($closure))->getNumberOfParameters() === 0
+            ? $closure()
+            : $closure(Yii::$app->getRequest());
     }
 
     /**

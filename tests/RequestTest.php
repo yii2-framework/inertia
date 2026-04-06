@@ -50,6 +50,68 @@ final class RequestTest extends TestCase
         self::assertSame('XSRF-TOKEN', $request->csrfParam);
     }
 
+    public function testCsrfValidationFailsWithInvalidHeader(): void
+    {
+        $this->mockWebApplicationWithInertiaRequest();
+
+        $request = Yii::$app->getRequest();
+
+        self::assertInstanceOf(Request::class, $request);
+
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        $request->getCsrfToken();
+        $request->headers->set('X-XSRF-TOKEN', 'invalid-token');
+
+        self::assertFalse(
+            $request->validateCsrfToken(),
+            'CSRF validation should fail with an invalid header token.',
+        );
+    }
+
+    public function testCsrfValidationFailsWithoutHeader(): void
+    {
+        $this->mockWebApplicationWithInertiaRequest();
+
+        $request = Yii::$app->getRequest();
+
+        self::assertInstanceOf(Request::class, $request);
+
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        $request->getCsrfToken();
+
+        self::assertFalse(
+            $request->validateCsrfToken(),
+            'CSRF validation should fail when no token header is present.',
+        );
+    }
+
+    public function testCsrfValidationPassesWithValidSignedHeader(): void
+    {
+        $this->mockWebApplicationWithInertiaRequest();
+
+        $request = Yii::$app->getRequest();
+
+        self::assertInstanceOf(Request::class, $request);
+
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+
+        $csrfToken = $request->getCsrfToken();
+
+        $signed = Yii::$app->getSecurity()->hashData(
+            serialize(['XSRF-TOKEN', $csrfToken]),
+            $request->cookieValidationKey,
+        );
+
+        $request->headers->set('X-XSRF-TOKEN', $signed);
+
+        self::assertTrue(
+            $request->validateCsrfToken(),
+            'CSRF validation should pass with a valid signed header token.',
+        );
+    }
+
     public function testGetCsrfTokenFromHeaderCallsUnserializeWithAllowedClassesFalse(): void
     {
         $this->mockWebApplicationWithInertiaRequest();
