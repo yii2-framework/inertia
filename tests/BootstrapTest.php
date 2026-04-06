@@ -40,6 +40,7 @@ final class BootstrapTest extends TestCase
             'Vary header should append X-Inertia to existing values.',
         );
     }
+
     public function testBeforeSendAppendsVaryHeaderWhenWhitespaceOnly(): void
     {
         $this->prepareInertiaRequest();
