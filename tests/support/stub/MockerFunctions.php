@@ -49,6 +49,8 @@ final class MockerFunctions
         self::$fileGetContentsCalls++;
 
         if (self::$fileGetContentsShouldFail) {
+            self::$fileGetContentsShouldFail = false;
+
             return false;
         }
 

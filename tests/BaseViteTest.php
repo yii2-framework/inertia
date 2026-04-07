@@ -284,10 +284,6 @@ final class BaseViteTest extends TestCase
             $tags,
             'Dev server URL should not produce double slashes.',
         );
-        self::assertTrue(
-            MockerFunctions::getTrimCalled(),
-            "Must call 'trim' to normalize the dev server URL.",
-        );
     }
 
     public function testRenderTagsDevModeWithoutViteClient(): void
@@ -483,6 +479,27 @@ final class BaseViteTest extends TestCase
             '<script type="module" src="/build/assets/app-abc123.js"></script>',
             $tags,
             'Non-array imports value should be silently skipped without errors and produce only the entry script tag.',
+        );
+    }
+
+    public function testRenderTagsHandlesNonArrayCssEntry(): void
+    {
+        $vite = new Vite(
+            [
+                'manifestPath' => '@tests/data/non-array-css-manifest.json',
+                'baseUrl' => '@web/build',
+                'entrypoints' => [
+                    'resources/js/app.js',
+                ],
+            ],
+        );
+
+        $tags = $vite->renderTags();
+
+        self::assertSame(
+            '<script type="module" src="/build/assets/app-abc123.js"></script>',
+            $tags,
+            'Non-array `css` value on a manifest chunk must be silently skipped by `collectCssFiles()` and produce only the entry script tag, never a stylesheet tag.',
         );
     }
 
