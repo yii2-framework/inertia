@@ -1,0 +1,22 @@
+{
+    "_chunk-c.js": {
+        "file": "assets/chunk-c.js",
+        "name": "chunk-c"
+    },
+    "_chunk-b.js": {
+        "file": "assets/chunk-b.js",
+        "name": "chunk-b",
+        "imports": ["_chunk-c.js"]
+    },
+    "_chunk-a.js": {
+        "file": "assets/chunk-a.js",
+        "name": "chunk-a"
+    },
+    "resources/js/app.js": {
+        "file": "assets/app-deep.js",
+        "name": "app",
+        "src": "resources/js/app.js",
+        "isEntry": true,
+        "imports": ["_chunk-b.js", "_chunk-a.js"]
+    }
+}

@@ -1,0 +1,28 @@
+{
+    "_shared-abc123.js": {
+        "file": "assets/shared-abc123.js",
+        "name": "shared",
+        "css": ["assets/shared-abc123.css"]
+    },
+    "_utils-def456.js": {
+        "file": "assets/utils-def456.js",
+        "name": "utils",
+        "imports": ["_shared-abc123.js"]
+    },
+    "resources/js/app.js": {
+        "file": "assets/app-abc123.js",
+        "name": "app",
+        "src": "resources/js/app.js",
+        "isEntry": true,
+        "imports": ["_shared-abc123.js"],
+        "css": ["assets/app-abc123.css"]
+    },
+    "resources/js/admin.js": {
+        "file": "assets/admin-def456.js",
+        "name": "admin",
+        "src": "resources/js/admin.js",
+        "isEntry": true,
+        "imports": ["_shared-abc123.js", "_utils-def456.js"],
+        "css": ["assets/app-abc123.css", "assets/admin-def456.css"]
+    }
+}

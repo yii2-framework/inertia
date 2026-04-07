@@ -1,0 +1,13 @@
+{
+    "_shared-abc123.js": {
+        "file": "assets/shared-abc123.js",
+        "name": "shared"
+    },
+    "resources/js/app.js": {
+        "file": "assets/app-abc123.js",
+        "name": "app",
+        "src": "resources/js/app.js",
+        "isEntry": true,
+        "imports": [123, "_shared-abc123.js"]
+    }
+}

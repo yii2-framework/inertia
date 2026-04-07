@@ -15,7 +15,7 @@ use yii\inertia\tests\support\stub\MockerFunctions;
  * PHPUnit extension that registers internal-function mocks for test execution.
  *
  * @author Wilmer Arambula <terabytesoftw@gmail.com>
- * @since 0.2
+ * @since 0.1
  */
 final class MockerExtension implements Extension
 {
@@ -42,6 +42,14 @@ final class MockerExtension implements Extension
         $mocks = [
             [
                 'namespace' => 'yii\inertia',
+                'name' => 'file_get_contents',
+                'function' => static fn(
+                    string $filename,
+                    mixed ...$args,
+                ): string|false => MockerFunctions::file_get_contents($filename, ...$args),
+            ],
+            [
+                'namespace' => 'yii\inertia',
                 'name' => 'trim',
                 'function' => static fn(
                     string $string,
@@ -58,7 +66,8 @@ final class MockerExtension implements Extension
             ],
         ];
 
-        $mocker = new Mocker();
+        $mocker = new Mocker(stubPath: __DIR__ . '/stub/stubs.php');
+
         $mocker->load($mocks);
 
         MockerState::saveState();

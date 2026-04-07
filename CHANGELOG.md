@@ -17,3 +17,4 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - feat: add `web\Request` with `cookie-to-header` CSRF protection compatible with Inertia's built-in HTTP client.
 - fix: mask raw token in `web\Request::getCsrfTokenFromHeader()` so `validateCsrfToken()` comparison succeeds.
 - docs: document `web\Request` cookie-to-header CSRF protection in `README.md`, `configuration.md`, and `examples.md`.
+- feat: add `BaseVite` abstract component centralizing Vite manifest parsing, dev-server tag rendering, and module preload handling for adapter packages; subclasses inject framework-specific bootstrap tags via `renderExtraDevelopmentTags()`.

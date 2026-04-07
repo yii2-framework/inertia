@@ -13,7 +13,7 @@ use yii\inertia\web\Request;
  * Unit tests for {@see Request}.
  *
  * @author Wilmer Arambula <terabytesoftw@gmail.com>
- * @since 0.2
+ * @since 0.1
  */
 final class RequestTest extends TestCase
 {
@@ -23,10 +23,14 @@ final class RequestTest extends TestCase
 
         $request = Yii::$app->getRequest();
 
-        self::assertInstanceOf(Request::class, $request);
+        self::assertInstanceOf(
+            Request::class,
+            $request,
+            "Request component should be an instance of 'yii\inertia\web\Request'.",
+        );
         self::assertFalse(
             $request->csrfCookie['httpOnly'] ?? true,
-            "Key 'httpOnly' should be `false` so JavaScript can read the cookie.",
+            "Key 'httpOnly' should be 'false' so JavaScript can read the 'cookie'.",
         );
     }
 
@@ -36,8 +40,16 @@ final class RequestTest extends TestCase
 
         $request = Yii::$app->getRequest();
 
-        self::assertInstanceOf(Request::class, $request);
-        self::assertSame('X-XSRF-TOKEN', $request->csrfHeader);
+        self::assertInstanceOf(
+            Request::class,
+            $request,
+            "Request component should be an instance of 'yii\inertia\web\Request'.",
+        );
+        self::assertSame(
+            'X-XSRF-TOKEN',
+            $request->csrfHeader,
+            "CSRF 'header' should default to X-XSRF-TOKEN.",
+        );
     }
 
     public function testCsrfParamDefaultsToXsrfToken(): void
@@ -46,8 +58,16 @@ final class RequestTest extends TestCase
 
         $request = Yii::$app->getRequest();
 
-        self::assertInstanceOf(Request::class, $request);
-        self::assertSame('XSRF-TOKEN', $request->csrfParam);
+        self::assertInstanceOf(
+            Request::class,
+            $request,
+            "Request component should be an instance of 'yii\inertia\web\Request'.",
+        );
+        self::assertSame(
+            'XSRF-TOKEN',
+            $request->csrfParam,
+            'CSRF parameter should default to XSRF-TOKEN.',
+        );
     }
 
     public function testCsrfValidationFailsWithInvalidHeader(): void
@@ -65,7 +85,7 @@ final class RequestTest extends TestCase
 
         self::assertFalse(
             $request->validateCsrfToken(),
-            'CSRF validation should fail with an invalid header token.',
+            "CSRF validation should fail with an invalid 'header' token.",
         );
     }
 
@@ -83,7 +103,7 @@ final class RequestTest extends TestCase
 
         self::assertFalse(
             $request->validateCsrfToken(),
-            'CSRF validation should fail when no token header is present.',
+            "CSRF validation should fail when no token 'header' is present.",
         );
     }
 
@@ -102,7 +122,10 @@ final class RequestTest extends TestCase
 
         $cookie = Yii::$app->getResponse()->getCookies()->get('XSRF-TOKEN');
 
-        self::assertNotNull($cookie, 'Response should contain the XSRF-TOKEN cookie.');
+        self::assertNotNull(
+            $cookie,
+            "Response should contain the XSRF-TOKEN 'cookie'.",
+        );
 
         $signed = Yii::$app->getSecurity()->hashData(
             serialize(['XSRF-TOKEN', $cookie->value]),
@@ -113,7 +136,7 @@ final class RequestTest extends TestCase
 
         self::assertTrue(
             $request->validateCsrfToken(),
-            'CSRF validation should pass with a valid signed header token.',
+            "CSRF validation should pass with a valid signed 'header' token.",
         );
     }
 
@@ -137,11 +160,19 @@ final class RequestTest extends TestCase
 
         $calls = MockerFunctions::getUnserializeCalls();
 
-        self::assertCount(1, $calls, 'Should call unserialize exactly once.');
-        self::assertArrayHasKey('allowed_classes', $calls[0]['options']);
+        self::assertCount(
+            1,
+            $calls,
+            'Should call unserialize exactly once.',
+        );
+        self::assertArrayHasKey(
+            'allowed_classes',
+            $calls[0]['options'],
+            "unserialize should be called with an options array containing the 'allowed_classes' key.",
+        );
         self::assertFalse(
             $calls[0]['options']['allowed_classes'],
-            "Option 'allowed_classes' should be `false` to prevent object instantiation.",
+            "Option 'allowed_classes' should be 'false' to prevent object instantiation.",
         );
     }
 
@@ -154,16 +185,19 @@ final class RequestTest extends TestCase
         self::assertInstanceOf(Request::class, $request);
 
         $rawToken = 'raw-csrf-token-value-32chars-ok!';
+
         $signed = Yii::$app->getSecurity()->hashData(
             serialize(['XSRF-TOKEN', $rawToken]),
             $request->cookieValidationKey,
         );
 
         $request->headers->set('X-XSRF-TOKEN', $signed);
-
         $result = $request->getCsrfTokenFromHeader();
 
-        self::assertNotNull($result, 'Should return a non-null token.');
+        self::assertNotNull(
+            $result,
+            'Should return a non-null token.',
+        );
         self::assertNotSame(
             $rawToken,
             $result,
@@ -193,7 +227,7 @@ final class RequestTest extends TestCase
 
         self::assertNull(
             $request->getCsrfTokenFromHeader(),
-            'Should return `null` when payload contains serialized objects.',
+            "Should return 'null' when payload contains serialized objects.",
         );
     }
 
@@ -209,7 +243,7 @@ final class RequestTest extends TestCase
 
         self::assertNull(
             $request->getCsrfTokenFromHeader(),
-            'Should return `null` when HMAC validation fails.',
+            "Should return 'null' when HMAC validation fails.",
         );
     }
 
@@ -230,7 +264,7 @@ final class RequestTest extends TestCase
 
         self::assertNull(
             $request->getCsrfTokenFromHeader(),
-            'Should return `null` when the deserialized payload has a mismatched param name.',
+            "Should return 'null' when the deserialized payload has a mismatched param name.",
         );
     }
 
@@ -251,7 +285,7 @@ final class RequestTest extends TestCase
 
         self::assertNull(
             $request->getCsrfTokenFromHeader(),
-            'Should return `null` when the deserialized payload is not an array.',
+            "Should return 'null' when the deserialized payload is not an array.",
         );
     }
 
@@ -272,7 +306,7 @@ final class RequestTest extends TestCase
 
         self::assertNull(
             $request->getCsrfTokenFromHeader(),
-            'Should return `null` when the token value is not a string.',
+            "Should return 'null' when the token value is not a string.",
         );
     }
 
@@ -285,7 +319,7 @@ final class RequestTest extends TestCase
         self::assertInstanceOf(Request::class, $request);
         self::assertNull(
             $request->getCsrfTokenFromHeader(),
-            'Should return `null` when header is absent.',
+            "Should return 'null' when header is absent.",
         );
     }
 
@@ -308,7 +342,7 @@ final class RequestTest extends TestCase
         self::assertSame(
             'raw-token-value',
             $request->getCsrfTokenFromHeader(),
-            'Should return the raw header value when cookie validation is disabled.',
+            "Should return the raw 'header' value when 'cookie' validation is disabled.",
         );
     }
 

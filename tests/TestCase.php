@@ -8,6 +8,7 @@ use Yii;
 use yii\helpers\Json;
 use yii\inertia\Page;
 use yii\inertia\tests\support\ApplicationFactory;
+use yii\inertia\tests\support\stub\MockerFunctions;
 use yii\web\Response;
 
 /**
@@ -157,6 +158,8 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        MockerFunctions::reset();
 
         $this->mockWebApplication();
         $_SERVER['REQUEST_METHOD'] = 'GET';

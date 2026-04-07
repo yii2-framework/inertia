@@ -1,0 +1,15 @@
+{
+    "_shared-B7PI925R.js": {
+        "file": "assets/shared-B7PI925R.js",
+        "name": "shared",
+        "css": ["assets/shared-ChJ_j-JJ.css"]
+    },
+    "resources/js/app.js": {
+        "file": "assets/app-BRBmoGS9.js",
+        "name": "app",
+        "src": "resources/js/app.js",
+        "isEntry": true,
+        "imports": ["_shared-B7PI925R.js"],
+        "css": ["assets/app-BRBmoGS9.css"]
+    }
+}

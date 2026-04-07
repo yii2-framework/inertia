@@ -1,0 +1,17 @@
+{
+    "_shared-styles.js": {
+        "file": "assets/shared-styles.css",
+        "name": "shared-styles"
+    },
+    "_after-css.js": {
+        "file": "assets/after-css.js",
+        "name": "after-css"
+    },
+    "resources/js/app.js": {
+        "file": "assets/app-abc123.js",
+        "name": "app",
+        "src": "resources/js/app.js",
+        "isEntry": true,
+        "imports": ["_shared-styles.js", "_after-css.js"]
+    }
+}
