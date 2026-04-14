@@ -19,3 +19,4 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - docs: document `web\Request` cookie-to-header CSRF protection in `README.md`, `configuration.md`, and `examples.md`.
 - feat: add `Vite` component for manifest parsing, dev-server tag rendering, and module preload; framework adapters inject preamble scripts via `preambleProvider` closure.
 - chore: rename package and documentation references from `yii2-framework` to `yii2-extensions` after organization move.
+- docs: update PHP version requirement in installation guide from `8.2` to `8.3`.

@@ -23,7 +23,7 @@
 </p>
 
 <p align="center">
-    <strong>Inertia.js server-side integration layer for <a href="https://github.com/yii2-extensions/yii2">Yii2</a></strong><br>
+    <strong>Inertia.js server-side integration layer for <a href="https://github.com/yiisoft/yii2/tree/22.0">Yii2</a></strong><br>
     <em>Server-driven pages, shared props, redirects, and asset version handling without jQuery</em>
 </p>
 
@@ -187,7 +187,7 @@ For detailed configuration options and advanced usage.
 
 ## Package information
 
-[![PHP](https://img.shields.io/badge/%3E%3D8.3-777BB4.svg?style=for-the-badge&logo=php&logoColor=white)](https://www.php.net/releases/8.2/en.php)
+[![PHP](https://img.shields.io/badge/%3E%3D8.3-777BB4.svg?style=for-the-badge&logo=php&logoColor=white)](https://www.php.net/releases/8.3/en.php)
 [![Yii 22.0.x](https://img.shields.io/badge/22.0.x-0073AA.svg?style=for-the-badge&logo=yii&logoColor=white)](https://github.com/yiisoft/yii2/tree/22.0)
 [![Latest Stable Version](https://img.shields.io/packagist/v/yii2-extensions/inertia.svg?style=for-the-badge&logo=packagist&logoColor=white&label=Stable)](https://packagist.org/packages/yii2-extensions/inertia)
 [![Total Downloads](https://img.shields.io/packagist/dt/yii2-extensions/inertia.svg?style=for-the-badge&logo=composer&logoColor=white&label=Downloads)](https://packagist.org/packages/yii2-extensions/inertia)
