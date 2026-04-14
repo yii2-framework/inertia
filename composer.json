@@ -1,5 +1,5 @@
 {
-    "name": "yii2-framework/inertia",
+    "name": "yii2-extensions/inertia",
     "type": "library",
     "description": "Inertia js server-side integration layer for yii2.",
     "keywords": [
@@ -13,8 +13,8 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": ">=8.2",
-        "yii2-framework/yii2": "^0.1@dev"
+        "php": ">=8.3",
+        "yiisoft/yii2": "^22.0@dev"
     },
     "require-dev": {
         "infection/infection": "^0.32",

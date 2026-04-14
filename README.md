@@ -11,19 +11,19 @@
 <!-- markdownlint-enable MD041 -->
 
 <p align="center">
-    <a href="https://github.com/yii2-framework/inertia/actions/workflows/build.yml" target="_blank">
-        <img src="https://img.shields.io/github/actions/workflow/status/yii2-framework/inertia/build.yml?style=for-the-badge&logo=github&label=PHPUnit" alt="PHPUnit">
+    <a href="https://github.com/yii2-extensions/inertia/actions/workflows/build.yml" target="_blank">
+        <img src="https://img.shields.io/github/actions/workflow/status/yii2-extensions/inertia/build.yml?style=for-the-badge&logo=github&label=PHPUnit" alt="PHPUnit">
     </a>
-    <a href="https://dashboard.stryker-mutator.io/reports/github.com/yii2-framework/inertia/main" target="_blank">
-        <img src="https://img.shields.io/endpoint?style=for-the-badge&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyii2-framework%2Finertia%2Fmain" alt="Mutation Testing">
+    <a href="https://dashboard.stryker-mutator.io/reports/github.com/yii2-extensions/inertia/main" target="_blank">
+        <img src="https://img.shields.io/endpoint?style=for-the-badge&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyii2-extensions%2Finertia%2Fmain" alt="Mutation Testing">
     </a>
-    <a href="https://github.com/yii2-framework/inertia/actions/workflows/static.yml" target="_blank">
-        <img src="https://img.shields.io/github/actions/workflow/status/yii2-framework/inertia/static.yml?style=for-the-badge&logo=github&label=PHPStan" alt="PHPStan">
+    <a href="https://github.com/yii2-extensions/inertia/actions/workflows/static.yml" target="_blank">
+        <img src="https://img.shields.io/github/actions/workflow/status/yii2-extensions/inertia/static.yml?style=for-the-badge&logo=github&label=PHPStan" alt="PHPStan">
     </a>
 </p>
 
 <p align="center">
-    <strong>Inertia.js server-side integration layer for <a href="https://github.com/yii2-framework/yii2">Yii2</a></strong><br>
+    <strong>Inertia.js server-side integration layer for <a href="https://github.com/yii2-extensions/yii2">Yii2</a></strong><br>
     <em>Server-driven pages, shared props, redirects, and asset version handling without jQuery</em>
 </p>
 
@@ -36,14 +36,14 @@
 
 ## Overview
 
-`yii2-framework/inertia` is the server-side base package for building modern Inertia-driven pages on top of Yii2.
+`yii2-extensions/inertia` is the server-side base package for building modern Inertia-driven pages on top of Yii2.
 It does not ship a client adapter. Instead, it defines the server contract that future packages such as
-`yii2-framework/inertia-vue`, `yii2-framework/inertia-react`, and `yii2-framework/inertia-svelte` can reuse.
+`yii2-extensions/inertia-vue`, `yii2-extensions/inertia-react`, and `yii2-extensions/inertia-svelte` can reuse.
 
 ## Installation
 
 ```bash
-composer require yii2-framework/inertia:^0.1
+composer require yii2-extensions/inertia:^0.1
 ```
 
 Register the bootstrap class in your application configuration:
@@ -187,15 +187,16 @@ For detailed configuration options and advanced usage.
 
 ## Package information
 
-[![PHP](https://img.shields.io/badge/%3E%3D8.2-777BB4.svg?style=for-the-badge&logo=php&logoColor=white)](https://www.php.net/releases/8.2/en.php)
-[![Latest Stable Version](https://img.shields.io/packagist/v/yii2-framework/inertia.svg?style=for-the-badge&logo=packagist&logoColor=white&label=Stable)](https://packagist.org/packages/yii2-framework/inertia)
-[![Total Downloads](https://img.shields.io/packagist/dt/yii2-framework/inertia.svg?style=for-the-badge&logo=composer&logoColor=white&label=Downloads)](https://packagist.org/packages/yii2-framework/inertia)
+[![PHP](https://img.shields.io/badge/%3E%3D8.3-777BB4.svg?style=for-the-badge&logo=php&logoColor=white)](https://www.php.net/releases/8.2/en.php)
+[![Yii 22.0.x](https://img.shields.io/badge/22.0.x-0073AA.svg?style=for-the-badge&logo=yii&logoColor=white)](https://github.com/yiisoft/yii2/tree/22.0)
+[![Latest Stable Version](https://img.shields.io/packagist/v/yii2-extensions/inertia.svg?style=for-the-badge&logo=packagist&logoColor=white&label=Stable)](https://packagist.org/packages/yii2-extensions/inertia)
+[![Total Downloads](https://img.shields.io/packagist/dt/yii2-extensions/inertia.svg?style=for-the-badge&logo=composer&logoColor=white&label=Downloads)](https://packagist.org/packages/yii2-extensions/inertia)
 
 ## Quality code
 
-[![Codecov](https://img.shields.io/codecov/c/github/yii2-framework/inertia.svg?style=for-the-badge&logo=codecov&logoColor=white&label=Coverage)](https://codecov.io/github/yii2-framework/inertia)
-[![PHPStan Level Max](https://img.shields.io/badge/PHPStan-Level%20Max-4F5D95.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/yii2-framework/inertia/actions/workflows/static.yml)
-[![Super-Linter](https://img.shields.io/github/actions/workflow/status/yii2-framework/inertia/linter.yml?style=for-the-badge&label=Super-Linter&logo=github)](https://github.com/yii2-framework/inertia/actions/workflows/linter.yml)
+[![Codecov](https://img.shields.io/codecov/c/github/yii2-extensions/inertia.svg?style=for-the-badge&logo=codecov&logoColor=white&label=Coverage)](https://codecov.io/github/yii2-extensions/inertia)
+[![PHPStan Level Max](https://img.shields.io/badge/PHPStan-Level%20Max-4F5D95.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/yii2-extensions/inertia/actions/workflows/static.yml)
+[![Super-Linter](https://img.shields.io/github/actions/workflow/status/yii2-extensions/inertia/linter.yml?style=for-the-badge&label=Super-Linter&logo=github)](https://github.com/yii2-extensions/inertia/actions/workflows/linter.yml)
 [![StyleCI](https://img.shields.io/badge/StyleCI-Passed-44CC11.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.styleci.io/repos/1196150046?branch=main)
 
 ## License

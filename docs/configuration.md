@@ -2,7 +2,7 @@
 
 ## Overview
 
-`yii2-framework/inertia` provides a server-side Inertia response manager registered as the `inertia` application
+`yii2-extensions/inertia` provides a server-side Inertia response manager registered as the `inertia` application
 component. The bootstrap class registers it automatically when missing.
 
 ## Basic configuration
