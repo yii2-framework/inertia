@@ -6,8 +6,8 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## 0.1.0 Under development
 
-- feat: initial `yii2-framework/inertia` package structure.
-- docs: standardize documentation style, feature SVGs, cross-navigation, and `testing.md` to match `yii2-framework/jquery` conventions.
+- feat: initial `yii2-extensions/inertia` package structure.
+- docs: standardize documentation style, feature SVGs, cross-navigation, and `testing.md` to match `yii2-extensions/jquery` conventions.
 - chore: Raise code coverage to `100%` and ensure all tests pass successfully.
 - fix: update `README.md` to reference correct Yii2 framework repository.
 - docs: update installation instructions and correct Yii2 capitalization in `README.md`.
@@ -18,3 +18,4 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - fix: mask raw token in `web\Request::getCsrfTokenFromHeader()` so `validateCsrfToken()` comparison succeeds.
 - docs: document `web\Request` cookie-to-header CSRF protection in `README.md`, `configuration.md`, and `examples.md`.
 - feat: add `Vite` component for manifest parsing, dev-server tag rendering, and module preload; framework adapters inject preamble scripts via `preambleProvider` closure.
+- chore: rename package and documentation references from `yii2-framework` to `yii2-extensions` after organization move.

@@ -12,7 +12,7 @@
 Install the extension.
 
 ```bash
-composer require yii2-framework/inertia:^0.1
+composer require yii2-extensions/inertia:^0.1
 ```
 
 ### Method 2: Manual installation
@@ -22,7 +22,7 @@ Add to your `composer.json`.
 ```json
 {
     "require": {
-        "yii2-framework/inertia": "^0.1"
+        "yii2-extensions/inertia": "^0.1"
     }
 }
 ```
@@ -52,14 +52,14 @@ redirects so they follow the Inertia protocol.
 This package does not include a JavaScript client adapter. Install one of the following adapter packages in your
 application:
 
-- `yii2-framework/inertia-vue` (planned)
-- `yii2-framework/inertia-react` (planned)
-- `yii2-framework/inertia-svelte` (planned)
+- `yii2-extensions/inertia-vue` (planned)
+- `yii2-extensions/inertia-react` (planned)
+- `yii2-extensions/inertia-svelte` (planned)
 
 ## When not to install this package
 
-Do not install `yii2-framework/inertia` for applications that rely exclusively on traditional Yii2 server-rendered views
-and jQuery widgets. In that scenario, use `yii2-framework/jquery` instead.
+Do not install `yii2-extensions/inertia` for applications that rely exclusively on traditional Yii2 server-rendered views
+and jQuery widgets. In that scenario, use `yii2-extensions/jquery` instead.
 
 ## Next steps
 
