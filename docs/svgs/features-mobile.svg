@@ -1,75 +1,57 @@
 <!-- Mobile version - Single column -->
-<svg fill="none" viewBox="0 0 620 620" width="100%" height="580" xmlns="http://www.w3.org/2000/svg">
-    <foreignObject width="100%" height="100%">
-        <div xmlns="http://www.w3.org/1999/xhtml">
-            <style>
-                .container {
-                    display: grid;
-                    grid-template-columns: 1fr;
-                    gap: 16px;
-                    padding: 16px;
-                }
-                .alert-box {
-                    border-left: 4px solid #1f883d;
-                    padding: 12px;
-                    margin-bottom: 12px;
-                    border-radius: 6px;
-                    background: rgba(31, 136, 61, 0.1);
-                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-                    width: 100%;
-                    box-sizing: border-box;
-                }
-                .alert-title {
-                    margin: 0 0 8px 0;
-                    font-weight: 600;
-                    font-size: 14px;
-                }
-                .alert-content {
-                    margin: 0;
-                    line-height: 1.4;
-                    font-size: 12px;
-                }
+<svg viewBox="0 0 620 620" width="100%" height="580" xmlns="http://www.w3.org/2000/svg">
+    <style>
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        .box-bg { fill: #e6f4ea; stroke: #a7cdb3; stroke-width: 1; }
+        .title { font-weight: 700; font-size: 14px; fill: #1a202c; }
+        .content { font-size: 11px; fill: #4a5568; }
+    </style>
 
-                /* Light mode */
-                @media (prefers-color-scheme: light) {
-                    .alert-title { color: #000000; }
-                    .alert-content { color: #333333; }
-                    .alert-box { background: rgba(31, 136, 61, 0.1); }
-                }
+    <g>
+        <rect class="box-bg" x="16" y="16" width="588" height="84" rx="6"/>
+        <rect x="16" y="16" width="4" height="84" fill="#1f883d"/>
+        <text class="title" x="32" y="42">Flash &amp; Errors</text>
+        <text class="content" x="32" y="66">Session flash mapping to props.errors &#8226; Remaining flashes in top-level flash key</text>
+        <text class="content" x="32" y="84">Automatic consumption</text>
+    </g>
 
-                /* Dark mode */
-                @media (prefers-color-scheme: dark) {
-                    .alert-title { color: #ffffff; }
-                    .alert-content { color: #ffffff; }
-                    .alert-box { background: rgba(31, 136, 61, 0.2); }
-                }
-            </style>
-            <div class="container">
-                <div class="alert-box">
-                    <p class="alert-title"><strong>Flash &amp; Errors</strong></p>
-                    <p class="alert-content">Session flash mapping to props.errors • Remaining flashes in top-level flash key • Automatic consumption</p>
-                </div>
-                <div class="alert-box">
-                    <p class="alert-title"><strong>Page Rendering</strong></p>
-                    <p class="alert-content">HTML shell for initial visits • JSON payload for Inertia XHR • Automatic format detection via X-Inertia header</p>
-                </div>
-                <div class="alert-box">
-                    <p class="alert-title"><strong>Partial Reloads</strong></p>
-                    <p class="alert-content">X-Inertia-Partial-Data filtering • X-Inertia-Partial-Except exclusion • Unrequested closures skipped</p>
-                </div>
-                <div class="alert-box">
-                    <p class="alert-title"><strong>Shared Props</strong></p>
-                    <p class="alert-content">Global data via share() • Dot-notation nesting • Lazy Closure resolution • Request-aware callbacks</p>
-                </div>
-                <div class="alert-box">
-                    <p class="alert-title"><strong>Version Handling</strong></p>
-                    <p class="alert-content">Asset version mismatch detection • 409 + X-Inertia-Location response • Session flash preservation on conflict</p>
-                </div>
-                <div class="alert-box">
-                    <p class="alert-title"><strong>Zero jQuery</strong></p>
-                    <p class="alert-content">No jQuery dependency • Redirect normalization for PUT/PATCH/DELETE • Coexists with legacy Yii2 pages</p>
-                </div>
-            </div>
-        </div>
-    </foreignObject>
+    <g>
+        <rect class="box-bg" x="16" y="116" width="588" height="84" rx="6"/>
+        <rect x="16" y="116" width="4" height="84" fill="#1f883d"/>
+        <text class="title" x="32" y="142">Page Rendering</text>
+        <text class="content" x="32" y="166">HTML shell for initial visits &#8226; JSON payload for Inertia XHR</text>
+        <text class="content" x="32" y="184">Automatic format detection via X-Inertia header</text>
+    </g>
+
+    <g>
+        <rect class="box-bg" x="16" y="216" width="588" height="84" rx="6"/>
+        <rect x="16" y="216" width="4" height="84" fill="#1f883d"/>
+        <text class="title" x="32" y="242">Partial Reloads</text>
+        <text class="content" x="32" y="266">X-Inertia-Partial-Data filtering &#8226; X-Inertia-Partial-Except exclusion</text>
+        <text class="content" x="32" y="284">Unrequested closures skipped</text>
+    </g>
+
+    <g>
+        <rect class="box-bg" x="16" y="316" width="588" height="84" rx="6"/>
+        <rect x="16" y="316" width="4" height="84" fill="#1f883d"/>
+        <text class="title" x="32" y="342">Shared Props</text>
+        <text class="content" x="32" y="366">Global data via share() &#8226; Dot-notation nesting &#8226; Lazy Closure resolution</text>
+        <text class="content" x="32" y="384">Request-aware callbacks</text>
+    </g>
+
+    <g>
+        <rect class="box-bg" x="16" y="416" width="588" height="84" rx="6"/>
+        <rect x="16" y="416" width="4" height="84" fill="#1f883d"/>
+        <text class="title" x="32" y="442">Version Handling</text>
+        <text class="content" x="32" y="466">Asset version mismatch detection &#8226; 409 + X-Inertia-Location response</text>
+        <text class="content" x="32" y="484">Session flash preservation on conflict</text>
+    </g>
+
+    <g>
+        <rect class="box-bg" x="16" y="516" width="588" height="84" rx="6"/>
+        <rect x="16" y="516" width="4" height="84" fill="#1f883d"/>
+        <text class="title" x="32" y="542">Zero jQuery</text>
+        <text class="content" x="32" y="566">No jQuery dependency &#8226; Redirect normalization for PUT/PATCH/DELETE</text>
+        <text class="content" x="32" y="584">Coexists with legacy Yii2 pages</text>
+    </g>
 </svg>

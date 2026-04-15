@@ -20,3 +20,4 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - feat: add `Vite` component for manifest parsing, dev-server tag rendering, and module preload; framework adapters inject preamble scripts via `preambleProvider` closure.
 - chore: rename package and documentation references from `yii2-framework` to `yii2-extensions` after organization move.
 - docs: update PHP version requirement to `8.3` in installation docs and align related `README.md` links.
+- chore: update PHP version to `8.3` in `.styleci.yml`; enhance SVG features documentation for clarity and consistency and adjust logo source in `README.md`.
