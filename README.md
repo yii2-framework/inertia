@@ -126,12 +126,22 @@ end-to-end. When `devMode` is `false`, it reads the manifest at `manifestPath` a
 production.
 
 Typical development flow: run `npm run dev` to start the Vite dev server and launch Yii2 with a dev environment flag
-(for example, `YII_ENV=dev ./yii serve`) so your configuration flips `Vite::$devMode` to `true`.
+(for example, `YII_ENV=dev ./yii serve`). `YII_ENV` does not toggle `Vite::$devMode` on its own; your application
+configuration must wire the two together, for example:
+
+```php
+'components' => [
+    'inertiaVite' => [
+        'class' => \yii\inertia\Vite::class,
+        'devMode' => YII_ENV === 'dev',
+        // ...
+    ],
+],
+```
 
 For framework-specific setup, see:
 
-- [`yii2-extensions/inertia-react`](https://github.com/yii2-extensions/inertia-react) — React Refresh preamble
-  auto-injection.
+- [`yii2-extensions/inertia-react`](https://github.com/yii2-extensions/inertia-react) — React Refresh preamble auto-injection.
 - [`yii2-extensions/inertia-vue`](https://github.com/yii2-extensions/inertia-vue) — Vue HMR (no extra preamble).
 
 ## Prop types (v3)
